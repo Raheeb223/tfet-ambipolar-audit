@@ -1,0 +1,42 @@
+# Calibrated audit: same devices, bias and cached electrostatics as configs/audit.yaml (the
+# solutions do not depend on the BTBT/TAT parameters because traps are uncharged), but the
+# realistic scenarios use the Kane (A, B) fitted to measured Si junction data
+# (results/calibration/btbt_calibration.json; local and nonlocal fitted separately) and
+# nonlocal paths in both x and y. The baseline keeps the literature defaults (what papers report).
+base_config: configs/tfet_2d.yaml
+mesh_refine: 2
+out_dir: results/audit_cal
+cache_dir: results/audit/cache
+calibration: results/calibration/btbt_calibration.json
+
+bias:
+  V_drain: 1.0
+  Vg_ambipolar: -1.0
+  Vg_sweep: [0.4, 0.2, 0.0, -0.2, -0.4, -0.6, -0.8, -1.0, -1.2, -1.4]
+
+devices:
+  reference: {}
+  heterogate:
+    dielectric.eps_gate_drain_side: 3.9
+    dielectric.heterogate_length_cm: 2.0e-6
+  low_drain_doping:
+    doping.drain_donors_cm3: 5.0e18
+  gd_underlap:
+    geometry.gate_underlap_drain_cm: 1.0e-6
+  dual_wf_gate:
+    gate.workfunction_drain_side_eV: 4.0
+    gate.dual_gate_length_cm: 2.0e-6
+
+temperatures_K: [300.0, 358.15, 398.15]
+
+baseline:
+  T_K: 300.0
+  btbt_model: local
+  tat_bulk: false
+  interface_traps: false
+
+scenarios:
+  btbt_model: [local, nonlocal]
+  D_it_cm2eV: [0.0, 1.0e11, 1.0e12, 5.0e12]
+  tau_s: [1.0e-6, 1.0e-7, 1.0e-8]
+  D_it_profile: [uniform, u_shape]     # u_shape: edge/midgap ratio 50, tail 0.1 eV (ASSUMPTION)

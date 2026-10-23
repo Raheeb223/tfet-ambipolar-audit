@@ -1,0 +1,11 @@
+# Tested with Python 3.11 on Windows 11 (2026-10-22).
+devsim==2.11.1
+mkl==2026.2.0          # BLAS/LAPACK + PARDISO for DEVSIM on Windows (see src/devsim_env.py)
+numpy==2.4.6
+scipy==1.17.1
+matplotlib==3.11.2
+pandas==3.1.0
+scikit-learn==1.9.1
+emcee==3.1.6
+PyYAML==6.0.3
+pytest==9.1.1

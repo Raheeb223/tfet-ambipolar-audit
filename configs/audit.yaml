@@ -1,0 +1,38 @@
+# Audit definition: the four suppression techniques, the "literature-practice" baseline
+# scenario and the realistic scenarios. All values are ASSUMPTIONS chosen to match common
+# practice in the 2010-2026 suppression literature (see paper Table I), not optimized designs.
+base_config: configs/tfet_2d.yaml
+mesh_refine: 2                 # 2x refinement: ~2 % discretization error (mesh study)
+
+bias:
+  V_drain: 1.0
+  Vg_ambipolar: -1.0           # I_amb is read here
+  Vg_sweep: [0.4, 0.2, 0.0, -0.2, -0.4, -0.6, -0.8, -1.0, -1.2, -1.4]
+
+devices:
+  reference: {}
+  heterogate:                  # Choi & Lee TED 2010: low-k near drain
+    dielectric.eps_gate_drain_side: 3.9
+    dielectric.heterogate_length_cm: 2.0e-6
+  low_drain_doping:            # e.g. Boucart & Ionescu TED 2007 style asymmetric doping
+    doping.drain_donors_cm3: 5.0e18
+  gd_underlap:                 # e.g. Krishnaraja APL 2019 (measured), Ghazi Sci Rep 2026
+    geometry.gate_underlap_drain_cm: 1.0e-6
+  dual_wf_gate:                # drain-side gate metal with lower work function
+    gate.workfunction_drain_side_eV: 4.0
+    gate.dual_gate_length_cm: 2.0e-6
+
+temperatures_K: [300.0, 358.15, 398.15]   # 25, 85, 125 degC
+
+# Baseline = what most suppression papers report: local Kane, default A/B, BTBT only, 300 K.
+baseline:
+  T_K: 300.0
+  btbt_model: local
+  tat_bulk: false
+  interface_traps: false
+
+# Realistic scenarios: every combination is post-processed from cached solutions.
+scenarios:
+  btbt_model: [local, nonlocal]
+  D_it_cm2eV: [0.0, 1.0e11, 1.0e12, 5.0e12]
+  tau_s: [1.0e-6, 1.0e-7, 1.0e-8]

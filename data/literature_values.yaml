@@ -1,0 +1,78 @@
+# Measured scalar values quoted in the TEXT of a source (no digitizing). Each entry gives the
+# value, unit, where it is stated and a short verbatim quote. Role as in data/digitized:
+# validation / context values are never used in a fit. Loaded and checked by
+# src/dataio/literature_values.py; used by src/analysis/extval_figs.py.
+
+values:
+- key: luong_Ea_offstate
+  value: 0.45
+  unit: eV
+  quantity: activation energy of the off-state current (Arrhenius, 220-400 K, Vds = 0.5 V)
+  device: strained-Si GAA nanowire n-TFET, TiN/HfO2 (EOT 1.81 nm), 50 x 5 nm2 wires
+  source: G. V. Luong, PhD dissertation, RWTH Aachen (2017), Schriften des FZ Juelich, Key Technologies 154
+  where: Sec. 4.4, Fig. 4.17(b)
+  quote: "The largest peak for the activation energy is located in the OFF-state ... with a value of 0.45 eV"
+  role: validation
+- key: luong_Ea_btbt_max
+  value: 0.1
+  unit: eV
+  quantity: upper bound of the activation energy where BTBT dominates (Vgs >= 0.9 V)
+  device: as luong_Ea_offstate
+  source: G. V. Luong, PhD dissertation, RWTH Aachen (2017)
+  where: Sec. 4.4, Fig. 4.17(b)
+  quote: "BTBT is assumed to be present for energies Ea below 0.1 V [sic] ... This is the case for Vgs = 0.9 V"
+  role: validation
+- key: luong_trap_level
+  value: [0.54, 0.58]
+  unit: eV
+  quantity: trap barrier height below Ec from Poole-Frenkel Arrhenius analysis (mid-gap traps)
+  device: as luong_Ea_offstate
+  source: G. V. Luong, PhD dissertation, RWTH Aachen (2017)
+  where: Sec. 4.4.2
+  quote: "A barrier height of phi_B = 0.54-0.58 eV has been extracted, which is roughly in the range of Eg/2"
+  role: context
+- key: luong_Dit_moscap
+  value: 4.5e11
+  unit: cm-2 eV-1
+  quantity: interface-trap density of HfO2/Si MOS capacitors (conductance method)
+  device: 3 nm ALD HfO2 / TiN on p-Si(100), same gate stack as the TFETs
+  source: G. V. Luong, PhD dissertation, RWTH Aachen (2017)
+  where: Sec. 3.2.1
+  quote: "For the fabricated MOSCAP with HfO2 a Dit of 4.5e11 eV-1 cm-2 has been extracted."
+  role: context
+- key: luong_Nit_tfet
+  value: 7.3e12
+  unit: cm-2
+  quantity: interface-state density of finished TFETs (charge pumping, 1 MHz, parasitics subtracted)
+  device: strained-Si GAA nanowire p-TFET, 60 wires 45 x 5 nm2, Lg = 350 nm
+  source: G. V. Luong, PhD dissertation, RWTH Aachen (2017)
+  where: Sec. 4.5
+  quote: "the density of interface states Nit ... amounts to 7.3e12 cm-2 ... about one order of magnitude higher [than the MOSCAPs]"
+  role: context
+- key: krishnaraja_Imin_overlap
+  value: 92.0e-12
+  unit: A/um
+  quantity: minimum drain current, 85 nm gate-drain overlap (ambipolar), Vds = 0.1 V
+  device: vertical InAs/InGaAsSb/GaSb nanowire TFET
+  source: A. Krishnaraja et al., Appl. Phys. Lett. 115, 143505 (2019), CC BY 4.0
+  where: Abstract
+  quote: "reduced the minimum achievable current Imin from 92 pA/um to 23 pA/um by suppressing the ambipolarity"
+  role: context
+- key: krishnaraja_Imin_underlap
+  value: 23.0e-12
+  unit: A/um
+  quantity: minimum drain current, 25 nm gate-drain underlap, Vds = 0.1 V
+  device: as krishnaraja_Imin_overlap
+  source: A. Krishnaraja et al., Appl. Phys. Lett. 115, 143505 (2019)
+  where: Abstract
+  quote: "reduced the minimum achievable current Imin from 92 pA/um to 23 pA/um"
+  role: context
+- key: krishnaraja_Ion_ratio
+  value: 10.0
+  unit: "1"
+  quantity: on-current loss factor caused by the underlap (Ion at Ioff = 1 nA/um, Vds = 0.1 V)
+  device: as krishnaraja_Imin_overlap
+  source: A. Krishnaraja et al., Appl. Phys. Lett. 115, 143505 (2019)
+  where: Abstract
+  quote: "reduction in the measured on current (Ion) from 0.1 uA/um in the overlapped device to 0.01 uA/um"
+  role: context

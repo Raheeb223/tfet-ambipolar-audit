@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# Never commit source PDFs (many are paywalled); keep only digitized CSVs + metadata.
+data/raw/*
+!data/raw/.gitkeep
+# Generated outputs; regenerate from scripts.
+results/*
+!results/.gitkeep
+*.dat
+*.log
+# Manuscript: kept local, never pushed
+paper/
+paper_overleaf.zip
+overleaf_upload/

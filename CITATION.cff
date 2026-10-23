@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this workflow or the digitized data, please cite the paper and this software."
+title: "tfet-ambipolar-audit: calibrated, validated audit of interface-trap limits on TFET ambipolar suppression"
+authors:
+  - family-names: Sadman
+    given-names: Raheeb
+    affiliation: "Department of Electrical and Electronic Engineering, BRAC University, Dhaka, Bangladesh"
+  - family-names: Rayhan
+    given-names: Md. Nasim
+    affiliation: "Department of Electrical and Electronic Engineering, BRAC University, Dhaka, Bangladesh"
+repository-code: "https://github.com/Raheeb223/tfet-ambipolar-audit"
+license: MIT
+version: 1.0.0
+date-released: 2026-10-23
+keywords:
+  - tunnel FET
+  - ambipolar current
+  - trap-assisted tunneling
+  - band-to-band tunneling
+  - DEVSIM
+  - TCAD
+references:
+  - type: article
+    title: "DEVSIM: A TCAD Semiconductor Device Simulator"
+    authors:
+      - family-names: Sanchez
+        given-names: Juan
+    journal: "Journal of Open Source Software"
+    year: 2022
+    doi: 10.21105/joss.03898

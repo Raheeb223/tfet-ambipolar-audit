@@ -1,0 +1,43 @@
+# 1D abrupt Si p+/n+ diode: solver verification device (HANDOFF §9 step 1).
+# Every value below is an assumption for verification, NOT a calibrated parameter.
+temperature_K: 300.0
+
+geometry:
+  length_p_cm: 5.0e-6        # 50 nm p+ side (anode contact "top" at x = 0)
+  length_n_cm: 5.0e-6        # 50 nm n+ side (cathode contact "bot")
+
+doping:
+  acceptors_cm3: 1.0e19      # abrupt step, 100 % active (activation is a calibration unknown later)
+  donors_cm3: 1.0e19
+
+mesh:
+  spacing_junction_cm: 1.0e-8   # 0.1 nm at the junction
+  spacing_contact_cm: 5.0e-7    # 5 nm at the contacts
+  refine: 1                     # divide all spacings by this (mesh-convergence test)
+
+srh:
+  tau_n_s: 1.0e-7
+  tau_p_s: 1.0e-7
+  trap_level_eV_from_midgap: 0.0    # n1 = p1 = ni
+
+mobility:                     # constant; doping/field dependence is TODO
+  mu_n: 1400.0
+  mu_p: 450.0
+
+btbt:
+  enabled: true
+  A_cm3s: 4.0e14              # Sentaurus default Si (Biswas 2012) = uncalibrated baseline
+  B_Vcm: 1.9e7                # at 300 K; scaled with Eg(T)^1.5 for other T
+  P: 2.5                      # indirect (Si)
+  B_reference_T_K: 300.0
+  scale_A_with_T: false
+  F_smooth_Vcm: 1.0e3         # |F| regularization; exp(-B/F_smooth) ~ 0
+  # Multiplies G by (ni^2 - np)/(ni^2 + np): 1 under reverse bias, 0 at equilibrium,
+  # so the local model gives zero current at 0 V. Assumption, not from a paper.
+  detailed_balance_factor: true
+
+sweep:
+  anode_start_V: 0.0
+  anode_stop_V: -1.5
+  step_V: 0.05
+  min_step_V: 1.0e-4

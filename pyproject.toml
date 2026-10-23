@@ -1,0 +1,12 @@
+[project]
+name = "tfet-ambipolar-audit"
+version = "0.0.1"
+description = "Experimentally calibrated, uncertainty-aware audit of ambipolar suppression in SiGe-source TFETs"
+requires-python = ">=3.10,<3.13"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = [
+    "devsim: tests that run the DEVSIM solver (slower)",
+]

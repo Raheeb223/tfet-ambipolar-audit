@@ -1,0 +1,8 @@
+The digitized data in this folder (data/digitized/, data/literature_values.yaml) are
+released under the Creative Commons Attribution 4.0 International licence (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+
+The values were digitized or quoted from the published sources listed in
+data/digitized/metadata.yaml and data/literature_values.yaml. If you use them, cite
+those original sources as well as this repository. The source PDFs themselves are
+copyrighted by their publishers and are not included.

@@ -1,0 +1,404 @@
+# Metadata for every digitized curve (HANDOFF §7 rules, §11 fields).
+# One entry per CSV in this folder. CSV = two numeric columns with a header row,
+# in the units given here, e.g.
+#   V,J
+#   -0.10,1.2e-3
+#
+# Validate with:  python -m src.dataio.digitized
+#
+# Roles:
+#   core_calibration  fit parameters (Solomon 2004, Li & Sturm 2013, Zhao thesis Fig 2.3)
+#   temperature       temperature checks, no refitting (Zhao Fig 3.20, Ge TAT study)
+#   validation        device comparison only, NEVER fit (Wan 2011, Zhao JEDS 2015, Narimani 2018)
+#   sanity            sign/trend checks only, never fit (datasheets, 1960s Ge)
+#   context           plotted for context only
+#
+# Template (copy, uncomment, fill in. Never invent numbers: every value comes from the source):
+#
+# - file: solomon2004_fig4_Q5_300K_rev.csv
+#   source: "Solomon et al., J. Appl. Phys. 95, 5800 (2004); IBM RC22916"
+#   doi_or_url: "https://dominoweb.draco.res.ibm.com/reports/rc22916.pdf"
+#   figure: "Fig. 4"
+#   curve_label: "sample Q5, 300 K"
+#   x_quantity: voltage
+#   x_unit: V
+#   y_quantity: current_density
+#   y_unit: A/cm2
+#   y_scale: log
+#   temperature_K: 300
+#   bias_direction: reverse
+#   doping_info: "see Table 1 / SIMS Fig. 3"
+#   area_um2: null
+#   digitizer_repeats: 3
+#   est_error: "x: +-0.01 V; y: +-5 % (one log-axis pixel ~ 0.02 decade)"
+#   role: core_calibration
+
+datasets:
+- file: zhao2007_fig2p3_fair.csv
+  source: J. Zhao, PhD dissertation, Univ. of Notre Dame (2007), Fig. 2.3, compiling R. B. Fair & H. W. Wivell, IEEE TED 23,
+    512 (1976) and J. M. Stork & R. D. Isaac, IEEE TED 30, 1527 (1983)
+  doi_or_url: none (dissertation, Univ. of Notre Dame library, April 2007)
+  figure: Fig. 2.3
+  curve_label: Fair & Wivell 1976, As-implanted n+p, reverse bias -1 V
+  x_quantity: electric_field
+  x_unit: MV/cm
+  y_quantity: current_density
+  y_unit: A/cm2
+  y_scale: log
+  temperature_K: 300
+  bias_direction: reverse
+  doping_info: one-sided n+p junctions; F = peak junction field from SIMS / C-V (original papers)
+  area_um2: null
+  digitizer_repeats: 1
+  est_error: 'vector PDF: exact path coordinates; marker-centre convention +-0.04 decade'
+  role: core_calibration
+- file: zhao2007_fig2p3_stork.csv
+  source: J. Zhao, PhD dissertation, Univ. of Notre Dame (2007), Fig. 2.3, compiling R. B. Fair & H. W. Wivell, IEEE TED 23,
+    512 (1976) and J. M. Stork & R. D. Isaac, IEEE TED 30, 1527 (1983)
+  doi_or_url: none (dissertation, Univ. of Notre Dame library, April 2007)
+  figure: Fig. 2.3
+  curve_label: Stork & Isaac 1983, base-emitter n+p, reverse bias -1 V
+  x_quantity: electric_field
+  x_unit: MV/cm
+  y_quantity: current_density
+  y_unit: A/cm2
+  y_scale: log
+  temperature_K: 300
+  bias_direction: reverse
+  doping_info: one-sided n+p junctions; F = peak junction field from SIMS / C-V (original papers)
+  area_um2: null
+  digitizer_repeats: 1
+  est_error: 'vector PDF: exact path coordinates; marker-centre convention +-0.04 decade'
+  role: core_calibration
+- file: wan2011_fig6b_LIN10.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 6(b)
+  curve_label: measured NTFET, 6 nm SiO2, LG = 400 nm, VDS = 1 V, L_IN = 10 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster; 3 repeats (column +-1 px, colour tol +-15): max spread 0.10 decade; x +-0.03 V'
+  role: validation
+- file: wan2011_fig6b_LIN25.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 6(b)
+  curve_label: measured NTFET, 6 nm SiO2, LG = 400 nm, VDS = 1 V, L_IN = 25 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster; 3 repeats (column +-1 px, colour tol +-15): max spread 0.04 decade; x +-0.03 V'
+  role: validation
+- file: wan2011_fig6b_LIN40.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 6(b)
+  curve_label: measured NTFET, 6 nm SiO2, LG = 400 nm, VDS = 1 V, L_IN = 40 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster; 3 repeats (column +-1 px, colour tol +-15): max spread 0.21 decade; x +-0.03 V'
+  role: validation
+- file: wan2011_fig6b_LIN50.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 6(b)
+  curve_label: measured NTFET, 6 nm SiO2, LG = 400 nm, VDS = 1 V, AT MEASUREMENT FLOOR (upper bound only), L_IN = 50 nm (ambipolar
+    branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster; 3 repeats (column +-1 px, colour tol +-15): max spread 0.62 decade; x +-0.03 V'
+  role: validation
+- file: wan2011_fig8a_LIN10.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 8(a)
+  curve_label: measured NTFET, 3 nm HfO2 (EOT 2.2 nm), LG = 400 nm, VDS = 1 V, L_IN = 10 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster; 3 repeats (column +-1 px, colour tol +-15): max spread 0.24 decade; x +-0.03 V'
+  role: validation
+- file: wan2011_fig8a_LIN25.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 8(a)
+  curve_label: measured NTFET, 3 nm HfO2 (EOT 2.2 nm), LG = 400 nm, VDS = 1 V, L_IN = 25 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster; 3 repeats (column +-1 px, colour tol +-15): max spread 0.10 decade; x +-0.03 V'
+  role: validation
+- file: wan2011_fig8a_LIN50.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 8(a)
+  curve_label: measured NTFET, 3 nm HfO2 (EOT 2.2 nm), LG = 400 nm, VDS = 1 V, L_IN = 50 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster; 3 repeats (column +-1 px, colour tol +-15): max spread 0.31 decade; x +-0.03 V'
+  role: validation
+- file: wan2011_fig6a_sim_LIN10.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 6(a)
+  curve_label: published Silvaco BTBT-only simulation, NTFET SiO2, VDS = 1 V, L_IN = 10 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 1
+  est_error: raster marker centroids; +-0.05 decade
+  role: context
+- file: wan2011_fig6a_sim_LIN20.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 6(a)
+  curve_label: published Silvaco BTBT-only simulation, NTFET SiO2, VDS = 1 V, L_IN = 20 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 1
+  est_error: raster marker centroids; +-0.05 decade
+  role: context
+- file: wan2011_fig6a_sim_LIN30.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 6(a)
+  curve_label: published Silvaco BTBT-only simulation, NTFET SiO2, VDS = 1 V, L_IN = 30 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 1
+  est_error: raster marker centroids; +-0.05 decade
+  role: context
+- file: wan2011_fig6a_sim_LIN40.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 6(a)
+  curve_label: published Silvaco BTBT-only simulation, NTFET SiO2, VDS = 1 V, L_IN = 40 nm (ambipolar branch, VGS < 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B, n+ drain As, intrinsic L_IN next to the drain (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 1
+  est_error: raster marker centroids; +-0.05 decade
+  role: context
+- file: wan2011_fig7b_As_profile.csv
+  source: J. Wan, C. Le Royer, A. Zaslavsky, S. Cristoloveanu, Solid-State Electron. 65-66, 226 (2011)
+  doi_or_url: https://doi.org/10.1016/j.sse.2011.06.012
+  figure: Fig. 7(b)
+  curve_label: simulated As lateral profile from the spacer edge (process simulation)
+  x_quantity: position
+  x_unit: nm
+  y_quantity: doping
+  y_unit: cm-3
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: As drain HDD 2e15 cm-2 at 20 keV, RTA (Sec. 2.1)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: raster; repeat spread <= 0.06 decade
+  role: structure
+- file: biswas2012_fig3_VD0p5.csv
+  source: A. Biswas, S. S. Dan, C. Le Royer, W. Grabinski, A. M. Ionescu, Microelectron. Eng. 98, 334 (2012)
+  doi_or_url: https://doi.org/10.1016/j.mee.2012.07.077
+  figure: Fig. 3
+  curve_label: measured SOI n-TFET (CEA-LETI), 6 nm SiO2, LG = 400 nm, LIN = 100 nm, VD = 0.5 V (on-state branch, VGS > 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B 8e19, n+ drain As 5e19, undoped 20 nm film, ~7 nm/dec junctions (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster marker centroids, 3 repeats (colour tol +-15): max spread 0.01 decade; x +-0.02 V'
+  role: validation
+- file: biswas2012_fig3_VD1p0.csv
+  source: A. Biswas, S. S. Dan, C. Le Royer, W. Grabinski, A. M. Ionescu, Microelectron. Eng. 98, 334 (2012)
+  doi_or_url: https://doi.org/10.1016/j.mee.2012.07.077
+  figure: Fig. 3
+  curve_label: measured SOI n-TFET (CEA-LETI), 6 nm SiO2, LG = 400 nm, LIN = 100 nm, VD = 1.0 V (on-state branch, VGS > 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B 8e19, n+ drain As 5e19, undoped 20 nm film, ~7 nm/dec junctions (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster marker centroids, 3 repeats (colour tol +-15): max spread 0.01 decade; x +-0.02 V'
+  role: validation
+- file: biswas2012_fig3_VD1p5.csv
+  source: A. Biswas, S. S. Dan, C. Le Royer, W. Grabinski, A. M. Ionescu, Microelectron. Eng. 98, 334 (2012)
+  doi_or_url: https://doi.org/10.1016/j.mee.2012.07.077
+  figure: Fig. 3
+  curve_label: measured SOI n-TFET (CEA-LETI), 6 nm SiO2, LG = 400 nm, LIN = 100 nm, VD = 1.5 V (on-state branch, VGS > 0)
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: p+ source B 8e19, n+ drain As 5e19, undoped 20 nm film, ~7 nm/dec junctions (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster marker centroids, 3 repeats (colour tol +-15): max spread 0.01 decade; x +-0.02 V'
+  role: validation
+- file: agopian2012_fig7_T300.csv
+  source: P. G. Der Agopian et al., Solid-State Electron. 78, 141 (2012)
+  doi_or_url: https://doi.org/10.1016/j.sse.2012.05.053
+  figure: Fig. 7
+  curve_label: 'measured triple-gate Si pTFET (imec), HfO2/TiN, Lch = 150 nm, 5 fins, |VDS| = 0.9 V, T = 300 K (valley only:
+    the four temperatures are resolved there)'
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: undoped fin (1e15), As/B extensions, self-aligned gate (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster marker centroids, 3 repeats (colour tol +-15): max spread 0.00 decade; temperature assigned by marker
+    order within each VGS column'
+  role: validation
+- file: agopian2012_fig7_T360.csv
+  source: P. G. Der Agopian et al., Solid-State Electron. 78, 141 (2012)
+  doi_or_url: https://doi.org/10.1016/j.sse.2012.05.053
+  figure: Fig. 7
+  curve_label: 'measured triple-gate Si pTFET (imec), HfO2/TiN, Lch = 150 nm, 5 fins, |VDS| = 0.9 V, T = 360 K (valley only:
+    the four temperatures are resolved there)'
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A
+  y_scale: log
+  temperature_K: 360
+  bias_direction: n/a
+  doping_info: undoped fin (1e15), As/B extensions, self-aligned gate (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster marker centroids, 3 repeats (colour tol +-15): max spread 0.01 decade; temperature assigned by marker
+    order within each VGS column'
+  role: validation
+- file: agopian2012_fig7_T390.csv
+  source: P. G. Der Agopian et al., Solid-State Electron. 78, 141 (2012)
+  doi_or_url: https://doi.org/10.1016/j.sse.2012.05.053
+  figure: Fig. 7
+  curve_label: 'measured triple-gate Si pTFET (imec), HfO2/TiN, Lch = 150 nm, 5 fins, |VDS| = 0.9 V, T = 390 K (valley only:
+    the four temperatures are resolved there)'
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A
+  y_scale: log
+  temperature_K: 390
+  bias_direction: n/a
+  doping_info: undoped fin (1e15), As/B extensions, self-aligned gate (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster marker centroids, 3 repeats (colour tol +-15): max spread 0.01 decade; temperature assigned by marker
+    order within each VGS column'
+  role: validation
+- file: agopian2012_fig7_T420.csv
+  source: P. G. Der Agopian et al., Solid-State Electron. 78, 141 (2012)
+  doi_or_url: https://doi.org/10.1016/j.sse.2012.05.053
+  figure: Fig. 7
+  curve_label: 'measured triple-gate Si pTFET (imec), HfO2/TiN, Lch = 150 nm, 5 fins, |VDS| = 0.9 V, T = 420 K (valley only:
+    the four temperatures are resolved there)'
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A
+  y_scale: log
+  temperature_K: 420
+  bias_direction: n/a
+  doping_info: undoped fin (1e15), As/B extensions, self-aligned gate (Sec. 2)
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster marker centroids, 3 repeats (colour tol +-15): max spread 0.01 decade; temperature assigned by marker
+    order within each VGS column'
+  role: validation

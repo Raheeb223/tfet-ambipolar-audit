@@ -1,0 +1,75 @@
+# 2D double-gate Si n-TFET (p+ source / intrinsic channel / n+ drain), half structure
+# with a symmetry plane at the film centre. Reference ("conventional") device of the audit.
+# Every value is an ASSUMPTION unless a source is given. Lengths in cm.
+#
+# Geometry follows the generic DG-TFET used across the ambipolar-suppression literature
+# (Lg = 50 nm, t_si = 10 nm, 2-3 nm high-k), e.g. Boucart & Ionescu TED 2007,
+# Choi & Lee TED 2010, Abdi & Kumar JEDS 2014.
+temperature_K: 300.0
+
+geometry:
+  L_source_cm: 2.0e-6         # 20 nm source extension to the contact
+  L_gate_cm: 5.0e-6           # 50 nm channel
+  L_drain_cm: 3.0e-6          # 30 nm drain extension
+  t_si_cm: 1.0e-6             # 10 nm film (half = 5 nm simulated)
+  t_ox_cm: 2.0e-7             # 2 nm gate dielectric
+  # gate covers [gate_x0, gate_x1]; channel is [0, L_gate]
+  gate_overlap_source_cm: 0.0   # gate edge aligned with source junction
+  gate_underlap_drain_cm: 0.0   # technique: gate-drain underlap (>0 shortens the gate)
+
+dielectric:
+  eps_gate: 25.0              # HfO2 over the whole gate (reference)
+  eps_gate_drain_side: 25.0   # technique: hetero-gate dielectric -> 3.9 (SiO2) here
+  heterogate_length_cm: 0.0   # length of the drain-side low-k segment under the gate
+  eps_spacer: 3.9             # dielectric above S/D and underlap (no gate on top);
+                              # ASSUMPTION: spacer only t_ox thick, Neumann above it
+
+gate:
+  workfunction_eV: 4.30       # midgap-ish n-type metal; ASSUMPTION
+  workfunction_drain_side_eV: 4.30   # technique: dual-material gate (WF engineering)
+  dual_gate_length_cm: 0.0    # length of the drain-side gate metal segment
+  chi_si_eV: 4.05             # Si electron affinity
+
+doping:
+  source_acceptors_cm3: 1.0e20
+  drain_donors_cm3: 1.0e20    # technique: reduced drain doping -> 5e18
+  channel_cm3: 1.0e15         # p-type background (sign: negative = acceptor below)
+  channel_type: p
+  # Gaussian lateral straggle of each junction (erfc profile). 0 -> abrupt.
+  # Real junction abruptness is uncertain (~2-4 nm/dec); it is a UQ input later.
+  junction_sigma_cm: 1.0e-7
+
+mesh:
+  dx_junction_cm: 2.0e-8      # 0.2 nm within +/- 6 nm of each junction and gate edge
+  dx_coarse_cm: 1.5e-7
+  dy_si_interface_cm: 2.0e-8
+  dy_si_center_cm: 5.0e-8
+  dy_ox_cm: 5.0e-8
+  refine: 1
+
+bias:
+  V_drain: 1.0
+  V_source: 0.0
+
+physics:
+  statistics: boltzmann       # TODO ablation: Fermi-Dirac (source 1e20 is degenerate)
+  bgn: none                   # TODO ablation: Slotboom
+  btbt:
+    model: local              # local | nonlocal | both
+    A_cm3s: 4.0e14            # Sentaurus default Si (Biswas 2012) = literature baseline
+    B_Vcm: 1.9e7
+    P: 2.5
+    nonlocal_dE_eV: 2.0e-3
+  tat_bulk:
+    enabled: false
+    tau_n_s: 1.0e-7           # ASSUMPTION; process-dependent, UQ input
+    tau_p_s: 1.0e-7
+    trap_level_eV_from_midgap: 0.0
+    m_tunnel: 0.25            # Hurkx 1992 default
+  interface_traps:
+    enabled: false
+    D_it_cm2eV: 1.0e12        # uniform in energy across the gap; UQ input
+    sigma_cm2: 1.0e-15        # capture cross-section, ASSUMPTION
+    v_th_cms: 1.0e7
+    field_enhanced: true      # Hurkx Gamma on the interface rate
+    n_levels: 41
