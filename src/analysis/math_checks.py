@@ -270,14 +270,16 @@ def check_conversions(M):
     recs.append(record("C", f"I_min rise 300->420 K = {dec:.2f} dec", 2, abs(dec - macro_value(M["AgoIminRatio"])),
                        rounding_tol(M["AgoIminRatio"])[0], matches_macro(dec, M["AgoIminRatio"]), "dec"))
     g = arrhenius_gain(Ea, 300.0, 398.15)
+    q = macro_value(M["TrapGainMeas"])
     recs.append(record("C", f"trap gain 300->398 K at measured E_a = {g:.1f}x", 1,
-                       abs(g - macro_value(M["TrapGainMeas"])), rounding_tol(M["TrapGainMeas"])[0],
-                       matches_macro(g, M["TrapGainMeas"]), "x"))
+                       abs(g - q) / q, rounding_tol(M["TrapGainMeas"])[0] / q,
+                       matches_macro(g, M["TrapGainMeas"]), "rel"))
     mod = pd.read_csv(os.path.join("results", "validation", "model_activation_energy.csv"))
     gm = arrhenius_gain(mod[mod.regime == "trap"].Ea_total.max(), 300.0, 398.15)
+    q = macro_value(M["TrapGainModel"])
     recs.append(record("C", f"model trap gain 300->398 K = {gm:.2f}x", 1,
-                       abs(gm - macro_value(M["TrapGainModel"])), rounding_tol(M["TrapGainModel"])[0],
-                       matches_macro(gm, M["TrapGainModel"]), "x"))
+                       abs(gm - q) / q, rounding_tol(M["TrapGainModel"])[0] / q,
+                       matches_macro(gm, M["TrapGainModel"]), "rel"))
 
     # charge pumping: sheet density (cm^-2) over the energy window -> D_it (cm^-2 eV^-1)
     from src.validation.ding2014 import NIT_PRE, DNIT
@@ -441,7 +443,8 @@ def write_outputs(recs, nrows, dhalf_dev, jloc_dev):
             if r.unit in ("rows", "cells", "values", ""):
                 res = "pass" if r.passed else "FAIL"
             else:
-                res = f"{'pass' if r.passed else 'FAIL'}, ${e(r.max_dev) if r.max_dev else '0'}$"
+                unit = {"dec": "\\,\\mathrm{dec}", "eV": "\\,\\mathrm{eV}"}.get(r.unit, "")
+                res = f"{'pass' if r.passed else 'FAIL'}, ${e(r.max_dev) if r.max_dev else '0'}{unit}$"
             lines.append(f"{txt} & {r.n} & {res} \\\\")
     lines += ["\\bottomrule", "\\end{tabular}"]
     with open(os.path.join(GEN, "tab_math.tex"), "w", encoding="utf-8") as f:
