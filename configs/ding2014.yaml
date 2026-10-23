@@ -1,0 +1,80 @@
+# Frozen-model check device: CEA-LETI SOI n-TFET of Ding et al., IEEE Trans. Nucl. Sci. 61, 2874
+# (2014) [D], irradiated with 10-keV X-rays (interface-trap increase measured by charge pumping).
+# Same LETI SOI/HfO2 platform as configs/wan2011_hfo2.yaml [W, B], which is reused unchanged except
+# for the values [D] states. Nothing here is fitted to [D]; every change is from [D] or a logged
+# ASSUMPTION. [D]: 17 nm Si, 3 nm HfO2, 140 nm BOX, W/L = 10/0.4 um, V_D(N+) = 1 V, V_S(P+) = 0;
+# C_g = 1.58e-6 F/cm2 (EOT 2.19 nm, the 2.2 nm of [W]).
+# Coordinates: gate covers [0, L_gate - L_IN]; the drain HDD implant edge is at x = L_gate.
+temperature_K: 300.0
+
+geometry:
+  single_gate: true           # SOI, 145 nm BOX [B]: whole film simulated, Neumann at the back
+                              # (thick-BOX limit; back-gate coupling neglected) ASSUMPTION
+  L_source_cm: 3.0e-6
+  L_gate_cm: 4.25e-5          # 400 nm gate [D] + L_IN
+  L_drain_cm: 4.0e-6
+  t_si_cm: 1.7e-6             # 17 nm Si channel [D] (raised S/D not modelled)
+  t_ox_cm: 3.0e-7             # 3 nm ALD HfO2 [W]
+  gate_overlap_source_cm: 0.0
+  gate_underlap_drain_cm: 2.5e-6   # L_IN not stated in [D]. ASSUMPTION: 25 nm (middle of the HfO2
+                                   # devices of [W]); the drain side carries no current at V_G > 0
+
+dielectric:
+  eps_gate: 5.32              # EOT 2.2 nm [W]; [D] C_g = 1.58e-6 F/cm2 gives 2.19 nm
+  eps_gate_drain_side: 5.32
+  heterogate_length_cm: 0.0
+  eps_spacer: 7.5             # Si3N4 spacer / protection layer over L_IN [W Sec. 2.1]
+
+gate:
+  workfunction_eV: 4.30       # [B] "gate work function was fixed at 4.3 eV"
+  workfunction_drain_side_eV: 4.30
+  dual_gate_length_cm: 0.0
+  chi_si_eV: 4.05
+
+doping:
+  source_acceptors_cm3: 8.0e19   # [B] source B 8e19
+  drain_donors_cm3: 5.0e19       # [B]; unused when drain_profile is given
+  channel_cm3: 1.0e15            # [B] undoped (1e15)
+  channel_type: p
+  junction_sigma_cm: 3.0e-7      # source side only; ~7 nm/decade [B]
+  drain_profile:
+    csv: data/digitized/wan2011_fig7b_As_profile.csv   # [W] Fig. 7b (process simulation)
+    x_scale_cm: 1.0e-7
+    offset_cm: 0.0            # ASSUMPTION: profile origin (spacer/implant edge) = L_IN from the gate
+    cut_tail: true
+
+mesh:
+  dx_junction_cm: 2.0e-8
+  dx_coarse_cm: 2.0e-7
+  dy_si_interface_cm: 2.0e-8
+  dy_si_center_cm: 1.0e-7
+  dy_ox_cm: 1.0e-7
+  refine: 1
+  fine_ranges_cm: []          # set per device to [gate edge - 10 nm, implant edge]
+
+bias:
+  V_drain: 1.0
+  V_source: 0.0
+
+physics:
+  statistics: boltzmann
+  bgn: none
+  btbt:
+    model: both
+    A_cm3s: 4.0e14            # replaced by the calibrated values (results/calibration)
+    B_Vcm: 1.9e7
+    P: 2.5
+    nonlocal_dE_eV: 2.0e-3
+  tat_bulk:
+    enabled: true
+    tau_n_s: 1.0e-7
+    tau_p_s: 1.0e-7
+    trap_level_eV_from_midgap: 0.0
+    m_tunnel: 0.25
+  interface_traps:
+    enabled: true
+    D_it_cm2eV: 1.0e11        # HfO2; the analysis scans D_it (linear)
+    sigma_cm2: 1.0e-15
+    v_th_cms: 1.0e7
+    field_enhanced: true
+    n_levels: 41

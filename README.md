@@ -14,7 +14,11 @@ Stork & Isaac 1983, via Zhao 2007; 0.23-decade rms) and validated, with the mode
 of Wan et al. 2011. Further frozen-model checks: on-state branch of Biswas et al. 2012 (the nonlocal
 model is ~2 decades low there, reported as a limitation), temperature signature of Der Agopian
 et al. 2012 and Luong 2017 (measured E_a 0.43-0.45 eV vs model <= 0.16 eV), measured D_it /
-N_it anchors (Luong 2017) and measured underlap (Krishnaraja 2019). Calibrated audit, UQ (2000
+N_it anchors (Luong 2017) and measured underlap (Krishnaraja 2019). Post-hoc check on the
+irradiated SOI/HfO2 TFET of Ding et al. 2014 (measured response to a charge-pumping-measured
+trap increase): the strong field-enhancement trap variants (m* <= 0.5, incl. nominal) predict
+at least 20x the measured current change and are excluded; m* >= 1 and plain SRH are
+consistent. Calibrated audit, UQ (2000
 samples), charged-trap and U-shaped-D_it checks done. The manuscript is in preparation and is
 not part of this repository; the analysis scripts write its figures and numbers to a local
 `paper/` folder (git-ignored).
@@ -51,6 +55,7 @@ That module also turns on DEVSIM's 128-bit extended precision; without it, low c
 .venv\Scripts\python -m src.validation.wan2011           # frozen-model validation (~40 min)
 .venv\Scripts\python -m src.validation.biswas2012        # on-state frozen-model check (~1.5 h)
 .venv\Scripts\python -m src.validation.biswas2012 --coverage   # tunneling fields of that check
+.venv\Scripts\python -m src.validation.ding2014 --run --analyse   # post-hoc trap-response check (~1 h)
 .venv\Scripts\python -m src.uq.btbt_uq                   # Monte Carlo over (A, B)
 .venv\Scripts\python -m src.audit.charged_traps          # self-consistent trap charge
 .venv\Scripts\python -m src.analysis.coverage            # calibrated field range check
@@ -93,7 +98,8 @@ src/dataio/         digitized-data loader; enforces "never calibrate on validati
 src/dataio/         plot_digitizer.py (vector/raster), extract_literature.py (all curves)
 src/calibration/    btbt_calibration.py (junction J(F) fit of local and nonlocal Kane)
 src/validation/     wan2011.py (frozen-model validation on measured SOI TFETs), biswas2012.py (on-state),
-                    holdout.py (pre-registered holdout test of the trap model)
+                    holdout.py (pre-registered holdout test of the trap model),
+                    ding2014.py (post-hoc check on a measured radiation-induced trap increase)
 src/audit/          run_audit.py (solve + cache + scenarios), metrics.py, charged_traps.py,
                     model_form.py (structural ensemble), qf_validity.py (transport validity)
 src/uq/             btbt_uq.py (Monte Carlo over the calibration covariance)
@@ -133,11 +139,15 @@ results/            generated outputs (git-ignored; regenerate from scripts)
 | Calibration refit at other P recovers synthetic (A, B) | test passes |
 | Quasi-Fermi drop = Ohm's law on a uniform sheet | test passes |
 | Holdout scoring: Arrhenius fit, frozen-hash guard, verdicts on synthetic devices with known answers | tests pass |
+| Ding 2014 check: pure shift gives no trap change, known trap increase recovered, exclusion rule, response-slope limits | tests pass |
 
 ## Known limitations / open TODOs
 
 - **Open: holdout test of the interface-trap model.** The near-off-state trap limit depends on
   the trap field enhancement, which no published data set constrains on the same devices.
+  The post-hoc Ding 2014 check disfavours strong enhancement, but on the source-side
+  junction of a different device, for radiation-induced traps, and with a logged bias
+  alignment (ASSUMPTION, +-0.1 V scanned); it does not replace the holdout test.
   Predictions are frozen in `data/holdout/` (2026-10-23); the measurement that decides it (a
   D_it split of one TFET design, with transfer curves at 300-400 K) is specified in
   `docs/holdout_protocol.md`.

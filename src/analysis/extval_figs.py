@@ -175,7 +175,8 @@ def write_data_table():
         g = groups.setdefault(k, [0, 0])
         g[0] += 1; g[1] += n
     cite = {"Zhao": "\\cite{fair1976,stork1983,zhao2007}", "J. Wan": "\\cite{wan2011}",
-            "A. Biswas": "\\cite{biswas2012}", "P. G. Der Agopian": "\\cite{agopian2012}"}
+            "A. Biswas": "\\cite{biswas2012}", "P. G. Der Agopian": "\\cite{agopian2012}",
+            "L. Ding": "\\cite{ding2014}"}
     what = {("core_calibration",): "fit of $A$, $B$", ("validation",): "frozen-model test",
             ("structure",): "drain profile"}
     lines = []

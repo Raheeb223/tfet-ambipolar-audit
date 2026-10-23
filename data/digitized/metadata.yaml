@@ -402,3 +402,83 @@ datasets:
   est_error: 'raster marker centroids, 3 repeats (colour tol +-15): max spread 0.01 decade; temperature assigned by marker
     order within each VGS column'
   role: validation
+- file: ding2014_fig4_DC_pre.csv
+  source: L. Ding, E. Gnani, S. Gerardin, M. Bagatin, F. Driussi, P. Palestri, L. Selmi, C. Le Royer, A. Paccagnella,
+    IEEE Trans. Nucl. Sci. 61, 2874 (2014)
+  doi_or_url: https://doi.org/10.1109/TNS.2014.2367548
+  figure: Fig. 4
+  curve_label: 'measured SOI n-TFET (CEA-LETI), 3 nm HfO2, 17 nm Si, W/L = 10/0.4 um, VD = 1 V; DC, pre-irradiation'
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: not stated in the paper (same CEA-LETI SOI/HfO2 platform as Wan 2011); see configs/ding2014.yaml
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster line trace (embedded 992x719 px image), three repeats with shifted colour thresholds,
+    stroke window and 0.05-decade bin grid, median curve kept; repeat spread median 0.7-6.5 mV, max 13 mV
+    (1 px = 4.2 mV); checked against the V_BTBT values of Fig. 5 (agree to 4 mV)'
+  role: validation
+- file: ding2014_fig4_DC_1p67M.csv
+  source: L. Ding, E. Gnani, S. Gerardin, M. Bagatin, F. Driussi, P. Palestri, L. Selmi, C. Le Royer, A. Paccagnella,
+    IEEE Trans. Nucl. Sci. 61, 2874 (2014)
+  doi_or_url: https://doi.org/10.1109/TNS.2014.2367548
+  figure: Fig. 4
+  curve_label: 'measured SOI n-TFET (CEA-LETI), 3 nm HfO2, 17 nm Si, W/L = 10/0.4 um, VD = 1 V; DC, after 1.67 Mrad(SiO2)'
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: not stated in the paper (same CEA-LETI SOI/HfO2 platform as Wan 2011); see configs/ding2014.yaml
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster line trace (embedded 992x719 px image), three repeats with shifted colour thresholds,
+    stroke window and 0.05-decade bin grid, median curve kept; repeat spread median 0.7-6.5 mV, max 13 mV
+    (1 px = 4.2 mV); checked against the V_BTBT values of Fig. 5 (agree to 4 mV)'
+  role: validation
+- file: ding2014_fig4_500kHz_pre.csv
+  source: L. Ding, E. Gnani, S. Gerardin, M. Bagatin, F. Driussi, P. Palestri, L. Selmi, C. Le Royer, A. Paccagnella,
+    IEEE Trans. Nucl. Sci. 61, 2874 (2014)
+  doi_or_url: https://doi.org/10.1109/TNS.2014.2367548
+  figure: Fig. 4
+  curve_label: 'measured SOI n-TFET (CEA-LETI), 3 nm HfO2, 17 nm Si, W/L = 10/0.4 um, VD = 1 V; 500-kHz pulsed I-V (trap-assisted current suppressed), pre-irradiation'
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: not stated in the paper (same CEA-LETI SOI/HfO2 platform as Wan 2011); see configs/ding2014.yaml
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster line trace (embedded 992x719 px image), three repeats with shifted colour thresholds,
+    stroke window and 0.05-decade bin grid, median curve kept; repeat spread median 0.7-6.5 mV, max 13 mV
+    (1 px = 4.2 mV); checked against the V_BTBT values of Fig. 5 (agree to 4 mV)'
+  role: validation
+- file: ding2014_fig4_500kHz_1p67M.csv
+  source: L. Ding, E. Gnani, S. Gerardin, M. Bagatin, F. Driussi, P. Palestri, L. Selmi, C. Le Royer, A. Paccagnella,
+    IEEE Trans. Nucl. Sci. 61, 2874 (2014)
+  doi_or_url: https://doi.org/10.1109/TNS.2014.2367548
+  figure: Fig. 4
+  curve_label: 'measured SOI n-TFET (CEA-LETI), 3 nm HfO2, 17 nm Si, W/L = 10/0.4 um, VD = 1 V; 500-kHz pulsed I-V (trap-assisted current suppressed), after 1.67 Mrad(SiO2)'
+  x_quantity: gate_voltage
+  x_unit: V
+  y_quantity: drain_current
+  y_unit: A/um
+  y_scale: log
+  temperature_K: 300
+  bias_direction: n/a
+  doping_info: not stated in the paper (same CEA-LETI SOI/HfO2 platform as Wan 2011); see configs/ding2014.yaml
+  area_um2: null
+  digitizer_repeats: 3
+  est_error: 'raster line trace (embedded 992x719 px image), three repeats with shifted colour thresholds,
+    stroke window and 0.05-decade bin grid, median curve kept; repeat spread median 0.7-6.5 mV, max 13 mV
+    (1 px = 4.2 mV); checked against the V_BTBT values of Fig. 5 (agree to 4 mV)'
+  role: validation

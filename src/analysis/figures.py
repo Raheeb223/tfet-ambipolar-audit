@@ -133,7 +133,7 @@ def fig_structure(cfg_path="configs/tfet_2d.yaml"):
 def fig_transfer(df):
     """Ambipolar branch of all five devices under three levels of physics (300 K)."""
     fig, axs = plt.subplots(1, 3, figsize=(7.1, 2.3), sharey=True)
-    panels = [("(a) Literature practice: local, default param.", dict(kind="baseline")),
+    panels = [("(a) Lit. practice: local, default", dict(kind="baseline")),
               ("(b) Calibrated nonlocal + bulk TAT", dict(kind="realistic", btbt_model="nonlocal",
                                                    D_it=0.0, tau=TAU0, T_K=T0)),
               ("(c) (b) + interface TAT, $D_{it}=10^{12}$",
