@@ -70,6 +70,8 @@ That module also turns on DEVSIM's 128-bit extended precision; without it, low c
 .venv\Scripts\python -m src.audit.qf_validity           # quasi-Fermi-level validity map
 .venv\Scripts\python -m src.analysis.robustness_figs    # fig_robust, claim/device/trap-model tables
 .venv\Scripts\python -m src.validation.holdout score   # score holdout measurements against the frozen predictions (docs/holdout_protocol.md)
+# last: independent re-derivation of every derived number (exit code 1 if any check fails)
+.venv\Scripts\python -m src.analysis.math_checks
 ```
 
 `src.validation.wan2011` and `src.validation.biswas2012` cache their solutions in
@@ -103,7 +105,8 @@ src/validation/     wan2011.py (frozen-model validation on measured SOI TFETs), 
 src/audit/          run_audit.py (solve + cache + scenarios), metrics.py, charged_traps.py,
                     model_form.py (structural ensemble), qf_validity.py (transport validity)
 src/uq/             btbt_uq.py (Monte Carlo over the calibration covariance)
-src/analysis/       figures.py, validation_figs.py, checks_numbers.py, coverage.py, extval_figs.py
+src/analysis/       figures.py, validation_figs.py, checks_numbers.py, coverage.py, extval_figs.py,
+                    math_checks.py (closed-form, independent re-derivation of the derived numbers)
 paper/              local only (git-ignored): generated figs/ and generated/ numbers
 tests/              unit + DEVSIM verification tests
 results/            generated outputs (git-ignored; regenerate from scripts)
@@ -140,6 +143,8 @@ results/            generated outputs (git-ignored; regenerate from scripts)
 | Quasi-Fermi drop = Ohm's law on a uniform sheet | test passes |
 | Holdout scoring: Arrhenius fit, frozen-hash guard, verdicts on synthetic devices with known answers | tests pass |
 | Ding 2014 check: pure shift gives no trap change, known trap increase recovered, exclusion rule, response-slope limits | tests pass |
+| Closed forms: D_1/2 and S(D) from (S0, S_inf, D_x) vs bisection, monotonicity, incomplete-gamma junction J vs quadrature, B <-> m_r, Arrhenius, outward rounding of quoted bounds | tests pass |
+| Independent re-derivation of the derived numbers (design rules, calibration, conversions of measured data, ensemble recount; `math_checks`) | 27/27 pass |
 
 ## Known limitations / open TODOs
 
