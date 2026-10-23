@@ -10,8 +10,8 @@ uncharged, I(D_it) = I0 + a·D_it exactly, which gives the trap-limited suppress
 S_inf = log10(a_ref/a_tech), the crossover density D_x = I0/a and the half-retention density D_1/2.
 
 **Status (2026-10-23):** BTBT calibrated on measured Si junction tunneling (Fair & Wivell 1976,
-Stork & Isaac 1983, via Zhao 2007; 0.23-decade rms) and validated blind on the measured SOI TFETs
-of Wan et al. 2011. Further blind checks: on-state branch of Biswas et al. 2012 (the nonlocal
+Stork & Isaac 1983, via Zhao 2007; 0.23-decade rms) and validated, with the model frozen, on the measured SOI TFETs
+of Wan et al. 2011. Further frozen-model checks: on-state branch of Biswas et al. 2012 (the nonlocal
 model is ~2 decades low there, reported as a limitation), temperature signature of Der Agopian
 et al. 2012 and Luong 2017 (measured E_a 0.43-0.45 eV vs model <= 0.16 eV), measured D_it /
 N_it anchors (Luong 2017) and measured underlap (Krishnaraja 2019). Calibrated audit, UQ (2000
@@ -48,8 +48,8 @@ That module also turns on DEVSIM's 128-bit extended precision; without it, low c
 .venv\Scripts\python -m src.audit.run_audit --audit configs/audit_sigma4nm.yaml
 .venv\Scripts\python -m src.audit.run_audit --audit configs/audit_cal_sigma2nm.yaml --only-evaluate
 .venv\Scripts\python -m src.audit.run_audit --audit configs/audit_cal_sigma4nm.yaml --only-evaluate
-.venv\Scripts\python -m src.validation.wan2011           # blind validation (~40 min)
-.venv\Scripts\python -m src.validation.biswas2012        # on-state blind check (~1.5 h)
+.venv\Scripts\python -m src.validation.wan2011           # frozen-model validation (~40 min)
+.venv\Scripts\python -m src.validation.biswas2012        # on-state frozen-model check (~1.5 h)
 .venv\Scripts\python -m src.validation.biswas2012 --coverage   # tunneling fields of that check
 .venv\Scripts\python -m src.uq.btbt_uq                   # Monte Carlo over (A, B)
 .venv\Scripts\python -m src.audit.charged_traps          # self-consistent trap charge
@@ -64,6 +64,7 @@ That module also turns on DEVSIM's 128-bit extended precision; without it, low c
 .venv\Scripts\python -m src.audit.model_form --parts slopes btbt ensemble floors spatial validation  # model-form ensemble
 .venv\Scripts\python -m src.audit.qf_validity           # quasi-Fermi-level validity map
 .venv\Scripts\python -m src.analysis.robustness_figs    # fig_robust, claim/device/trap-model tables
+.venv\Scripts\python -m src.validation.holdout score   # score holdout measurements against the frozen predictions (docs/holdout_protocol.md)
 ```
 
 `src.validation.wan2011` and `src.validation.biswas2012` cache their solutions in
@@ -91,7 +92,8 @@ src/devices/        diode_1d.py (1D p+/n+ diode), tfet_2d.py (2D DG-TFET, genera
 src/dataio/         digitized-data loader; enforces "never calibrate on validation data"
 src/dataio/         plot_digitizer.py (vector/raster), extract_literature.py (all curves)
 src/calibration/    btbt_calibration.py (junction J(F) fit of local and nonlocal Kane)
-src/validation/     wan2011.py (blind validation on measured SOI TFETs), biswas2012.py (on-state)
+src/validation/     wan2011.py (frozen-model validation on measured SOI TFETs), biswas2012.py (on-state),
+                    holdout.py (pre-registered holdout test of the trap model)
 src/audit/          run_audit.py (solve + cache + scenarios), metrics.py, charged_traps.py,
                     model_form.py (structural ensemble), qf_validity.py (transport validity)
 src/uq/             btbt_uq.py (Monte Carlo over the calibration covariance)
@@ -125,13 +127,20 @@ results/            generated outputs (git-ignored; regenerate from scripts)
 | Validation data never reach a fit (code-enforced role check) | test passes |
 | Parameter-free BTBT terms reproduce generation() to 1e-10 (used by UQ) | test passes |
 | Charged-trap fixed point: D_it = 0 unchanged, converges, correct sign | test passes |
-| Blind validation, Wan 2011 (nonlocal vs local, all offsets) | done |
+| Frozen-model validation, Wan 2011 (nonlocal vs local, all offsets) | done |
 | Interface TAT = Hurkx closed form for a single level (pairing n1<->Gamma_p, p1<->Gamma_n), sigma scaling, spectra, damage | tests pass |
 | Field-direction paths: axis = 1D, 0/90 deg invariance, 45 deg = single family, bins converge; angle-complete >= gradient | tests pass |
 | Calibration refit at other P recovers synthetic (A, B) | test passes |
 | Quasi-Fermi drop = Ohm's law on a uniform sheet | test passes |
+| Holdout scoring: Arrhenius fit, frozen-hash guard, verdicts on synthetic devices with known answers | tests pass |
 
 ## Known limitations / open TODOs
+
+- **Open: holdout test of the interface-trap model.** The near-off-state trap limit depends on
+  the trap field enhancement, which no published data set constrains on the same devices.
+  Predictions are frozen in `data/holdout/` (2026-10-23); the measurement that decides it (a
+  D_it split of one TFET design, with transfer curves at 300-400 K) is specified in
+  `docs/holdout_protocol.md`.
 
 - **Fixed 2026-10-23: interface-TAT pairing.** `interface_generation` paired the n1 term with
   the electron enhancement Gamma_n instead of Gamma_p (Hurkx 1992; the bulk-TAT code was

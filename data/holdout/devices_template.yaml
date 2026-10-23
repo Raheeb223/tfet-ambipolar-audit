@@ -1,0 +1,14 @@
+# Copy to devices.yaml. One entry per measured device (device_id as in measured.csv).
+devices:
+  FGA_d1:
+    Dit_cm2eV: 1.0e11        # value used for scoring
+    Dit_lo_cm2eV: 5.0e10     # bracket from the method's uncertainty
+    Dit_hi_cm2eV: 2.0e11
+    method: charge pumping on the TFET, 100 kHz-1 MHz, dE = 0.4 eV
+    split: anneal            # devices with the same split key form one D_it split
+  noFGA_d1:
+    Dit_cm2eV: 1.5e12
+    Dit_lo_cm2eV: 8.0e11
+    Dit_hi_cm2eV: 3.0e12
+    method: charge pumping on the TFET, 100 kHz-1 MHz, dE = 0.4 eV
+    split: anneal

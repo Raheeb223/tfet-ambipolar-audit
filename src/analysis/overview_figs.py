@@ -1,7 +1,7 @@
 """Overview figures for talks and the graphical abstract, in black and white only.
 
 fig_overview_block : block diagram of the whole study (data -> models -> calibration ->
-                     blind validation -> audit -> metrics -> findings).
+                     frozen-model validation -> audit -> metrics -> findings).
 fig_overview_concept : illustrated device, band diagram and transfer-curve sketch that
                        explain the central idea (interface TAT caps ambipolar suppression).
 
@@ -82,7 +82,7 @@ def fig_block(m):
          r"$\rightarrow$ calibration only")
     _box(ax, x, 5.7, w, 2.3, "4 independent measured\nTFET data sets\n"
          "(Wan 2011: SiO$_2$, HfO$_2$;\nBiswas 2012;\nDer Agopian 2012)\n"
-         r"$\rightarrow$ blind validation only")
+         r"$\rightarrow$ frozen-model validation only")
     _box(ax, x, 3.7, w, 1.7, "Published trap values\n(activation energy,\n"
          r"$D_{it}$, trap level)" "\n" r"$\rightarrow$ cross-checks")
     _box(ax, x, 1.2, w, 2.2, "21 digitised curves,\neach with source,\npage, figure and role",
@@ -103,7 +103,7 @@ def fig_block(m):
          f"rms error {m.get('nCalRmsNl', '?')} decade\n(nonlocal)")
     _box(ax, x, 6.6, w, 1.0, "FREEZE parameters", fill="black", weight="bold")
     ax.texts[-1].set_color("white")
-    _box(ax, x, 3.9, w, 2.3, "Blind test on measured\nTFETs, no refitting\n"
+    _box(ax, x, 3.9, w, 2.3, "Frozen-model test on measured\nTFETs, no refitting\n"
          f"nonlocal: {m.get('nValTenNlMin', '?')}–{m.get('nValTenNlMax', '?')} decade\n"
          f"local: {m.get('nValTenLocMin', '?')}–{m.get('nValTenLocMax', '?')} decades")
     _box(ax, x, 1.2, w, 2.4, "Rule: never calibrate\non validation data;\n"
@@ -142,7 +142,7 @@ def fig_block(m):
     _arrow(ax, (3.82, 9.15), (4.38, 9.15))                  # data -> model
     _arrow(ax, (7.82, 9.3), (8.38, 9.0))                    # model -> fit
     _arrow(ax, (10.0, 8.0), (10.0, 7.6))                    # fit -> freeze
-    _arrow(ax, (10.0, 6.6), (10.0, 6.2))                    # freeze -> blind
+    _arrow(ax, (10.0, 6.6), (10.0, 6.2))                    # freeze -> frozen-model test
     _arrow(ax, (11.82, 7.1), (12.38, 7.1))                  # frozen -> audit
     _arrow(ax, (15.82, 6.75), (16.38, 7.15))                # audit -> metrics
     _arrow(ax, (18.0, 6.3), (18.0, 6.0))

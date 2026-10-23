@@ -1,4 +1,4 @@
-# Blind-validation device: CEA-LETI SOI n-TFET of Wan et al., Solid-State Electron. 65-66, 226
+# Frozen-model validation device: CEA-LETI SOI n-TFET of Wan et al., Solid-State Electron. 65-66, 226
 # (2011) [W] and Biswas et al., Microelectron. Eng. 98, 334 (2012) [B]. Nothing here is fitted
 # to the validation curves; every value is taken from [W]/[B] or is a logged ASSUMPTION.
 # Coordinates: gate covers [0, L_gate - L_IN]; the drain HDD implant edge is at x = L_gate,

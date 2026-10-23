@@ -1,6 +1,6 @@
 """Independent measured checks beyond the Wan 2011 validation (paper Sec. IV-B):
 
-  (a) Biswas 2012 Fig. 3 -- on-state branch of the same CEA-LETI wafer, blind (no refit).
+  (a) Biswas 2012 Fig. 3 -- on-state branch of the same CEA-LETI wafer, frozen model (no refit).
       Metric (same form as the Wan validation): mean and rms of log10(I_sim / I_meas) over the
       measured on-state points, VGS >= 1 V (below 1 V the data sit on a ~1e-13 A/um plateau
       set by gate leakage / the instrument, not by tunneling).
@@ -176,7 +176,7 @@ def write_data_table():
         g[0] += 1; g[1] += n
     cite = {"Zhao": "\\cite{fair1976,stork1983,zhao2007}", "J. Wan": "\\cite{wan2011}",
             "A. Biswas": "\\cite{biswas2012}", "P. G. Der Agopian": "\\cite{agopian2012}"}
-    what = {("core_calibration",): "fit of $A$, $B$", ("validation",): "blind test",
+    what = {("core_calibration",): "fit of $A$, $B$", ("validation",): "frozen-model test",
             ("structure",): "drain profile"}
     lines = []
     for (src, figr, role), (nc, npts) in groups.items():

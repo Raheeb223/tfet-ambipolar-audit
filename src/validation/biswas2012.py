@@ -1,4 +1,4 @@
-"""Second blind validation: on-state transfer curves of the CEA-LETI SOI n-TFET of Biswas et al.
+"""Second frozen-model validation: on-state transfer curves of the CEA-LETI SOI n-TFET of Biswas et al.
 2012, Fig. 3 (role: validation; measured at VD = 0.5, 1.0, 1.5 V, LG = 400 nm, LIN = 100 nm).
 
 Same wafer and process as Wan 2011 (20 nm Si, 145 nm BOX, 6 nm SiO2, WF 4.3 eV, source B 8e19,

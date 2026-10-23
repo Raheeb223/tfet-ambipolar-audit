@@ -1,4 +1,4 @@
-"""Blind validation on the measured SOI n-TFETs of Wan et al. 2011 (role: validation).
+"""Frozen-model validation on the measured SOI n-TFETs of Wan et al. 2011 (role: validation).
 
 The BTBT parameters come from results/calibration/btbt_calibration.json (junction data only).
 Device structure from Wan 2011 / Biswas 2012 (configs/wan2011_*.yaml). The implant-edge offset

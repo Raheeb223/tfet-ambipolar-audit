@@ -1,0 +1,46 @@
+# Holdout test of the interface-trap model class (src/validation/holdout.py, protocol in
+# docs/holdout_protocol.md). The predictions are frozen BEFORE any holdout data exist
+# (data/holdout/frozen_components.csv, with its SHA-256 in data/holdout/frozen_components.sha256);
+# the score step refuses to run if the frozen file changed. Nothing is fitted to holdout data.
+
+# Model side (ASSUMPTIONS)
+# - production BTBT model only (rows/cols-max paths, nominal Kane parameters): the BTBT
+#   temperature dependence was computed for it alone; the BTBT share of the total current only
+#   matters where traps do not dominate.
+# - the model's V_GS = -0.2 V point stands for the measured off-state current minimum (the bias
+#   where measured E_a is reported in the literature: Der Agopian 2012, Luong 2017). The other
+#   gate voltages are scored as well, but only this one decides the verdict.
+# - the five simulated devices (reference + four techniques) span the device dependence; a
+#   variant's prediction is the range over them.
+# - sim_devices: the simulated devices a measured device is compared with. Empty = all five
+#   (use for an unknown or mixed design); [reference] for a plain p-i-n TFET without a
+#   suppression technique; the technique's name for a device that has one.
+sim_devices: []
+vg_decisive: -0.2
+vg_all: [-1.0, -0.6, -0.2]
+
+# Measurement side (ASSUMPTIONS)
+# - Arrhenius fit over this window only (the model's own range is 300-398 K; activation energies
+#   from different windows are not comparable). At least min_temperatures points inside it.
+fit_window_K: [295.0, 405.0]
+min_temperatures: 4
+
+# Consistency: a variant survives if the measured E_a lies within
+#   n_sigma * (fit standard error) + ea_tol_eV
+# of the variant's predicted E_a range (over devices and over the measured D_it interval).
+# ea_tol_eV covers the model's three-temperature grid (Arrhenius curvature, ~0.01 eV between the
+# two-point and three-point estimates) plus margin.
+n_sigma: 2.0
+ea_tol_eV: 0.02
+
+# D_it grid for the published table of frozen predictions (cm^-2 eV^-1)
+dit_grid: [1.0e10, 3.0e10, 1.0e11, 3.0e11, 1.0e12, 3.0e12, 1.0e13]
+
+frozen_dir: data/holdout
+out_dir: results/holdout
+
+# D_it split (devices of one design with different D_it, e.g. with and without forming-gas
+# anneal; same "split" key in devices.yaml): the measured log-log slope of the off-state current
+# against D_it at ~300 K must lie within slope_tol of the variant's predicted range. ASSUMPTION:
+# slope_tol covers device-to-device spread of the BTBT background at fixed geometry.
+slope_tol: 0.15
