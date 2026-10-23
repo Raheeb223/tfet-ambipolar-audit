@@ -229,7 +229,7 @@ def write_numbers(meas, delta, summ, df):
          "DingNitRatio": f"{(NIT_PRE + DNIT) / NIT_PRE:.1f}",
          "DingDitPreLo": _e(NIT_PRE / DE_CP[1]), "DingDitPreHi": _e(NIT_PRE / DE_CP[0]),
          "DingGainLo": f"{100 * gain.min():.0f}", "DingGainHi": f"{100 * gain.max():.0f}",
-         "DingSlopeLo": f"{sl.min():.2f}", "DingSlopeHi": f"{sl.max():.2f}",
+         "DingSlopeLo": sig2(sl.min(), "floor"), "DingSlopeHi": sig2(sl.max(), "ceil"),
          "DingAlignDV": f"{ALIGN_DV:g}",
          "DingNlev": str(int((df.offset_nm == df.offset_nm.min()).sum())),
          "DingPreTailNom": fmt(R.loc["nominal", "pre_tail_ratio_min"]),

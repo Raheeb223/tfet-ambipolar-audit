@@ -59,7 +59,10 @@ IT_LABEL = {
 
 def _rng(lo, hi, f="{:.2f}"):
     """Numeric range in math mode, so that negative ends render as minus signs."""
-    return f"${f.format(lo)}$" if f.format(lo) == f.format(hi) else f"${f.format(lo)}$--${f.format(hi)}$"
+    if f.format(lo) == f.format(hi):
+        return f"${f.format(lo)}$"
+    sep = " to " if hi < 0 else "--"                   # "-0.67 to -0.19", not "-0.67--0.19"
+    return f"${f.format(lo)}${sep}${f.format(hi)}$"
 
 
 def _drng(lo, hi):
@@ -271,7 +274,8 @@ def main():
     N["QfTechMax"] = f"{tq.dPhi_over_kT.max():.2f}"
     rq = qf[(qf.device == "reference")]
     N["QfRefOne"] = f"{rq[np.isclose(rq.Vg, -1.0)].dPhi_over_kT.max():.1f}"
-    N["QfRefTwo"] = f"{rq[np.isclose(rq.Vg, -0.2)].dPhi_over_kT.max():.2f}"
+    q2 = rq[np.isclose(rq.Vg, -0.2)].dPhi_over_kT.max()
+    N["QfRefTwo"] = f"{q2:.2f}" if q2 >= 0.005 else "<0.01"
     r1 = rq[np.isclose(rq.Vg, -1.0) & np.isclose(rq.T_K, 300.0) & (rq.D_it == 0)]
     N["QfRefOneDlog"] = f"{r1.dlogI.iloc[0]:.2f}"            # = reduction of every S at -1 V
     N["QfTechDlogMax"] = f"{tq.dlogI.max():.3f}"
