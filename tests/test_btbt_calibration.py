@@ -1,6 +1,7 @@
 """Calibration of Kane (A, B) on junction J(F) data (src/calibration/btbt_calibration.py)."""
 
 import numpy as np
+import pytest
 
 from src.calibration import btbt_calibration as bc
 from src.physics import kane_btbt
@@ -36,3 +37,13 @@ def test_fit_recovers_synthetic_parameters():
 def test_reduced_mass_round_trip():
     B = kane_btbt.kane_B_from_mass(bc.EG_300, 0.29)
     assert np.isclose(bc.reduced_mass_from_B(B), 0.29)
+
+
+def test_fit_recovers_parameters_at_other_exponent():
+    """The structural alternatives refit (A, B) at P = 3: synthetic data made with P = 3 are
+    recovered, and the default P = 2.5 fit of the same data is visibly worse."""
+    F = np.linspace(1.0e6, 2.2e6, 8)
+    J = bc.j_local(F, 3e18, 2.6e7, bc.EG_300 + 1.0, P=3.0)
+    r = bc.fit(F, J, "local", P=3.0)
+    assert r["A"] == pytest.approx(3e18, rel=1e-3) and r["B"] == pytest.approx(2.6e7, rel=1e-4)
+    assert bc.fit(F, J, "local")["rms_dec"] > 10 * r["rms_dec"]

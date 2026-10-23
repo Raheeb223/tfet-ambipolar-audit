@@ -57,10 +57,12 @@ def run(which, offsets=OFFSETS_NM):
         for L in spec["L_IN_nm"]:
             cfg = device_cfg(base, L, off)
             dev = t.build(cfg)
+            sols = []
             try:
                 for Vg in spec["Vg"]:
                     t.ramp_to(dev, Vg, cfg["bias"]["V_drain"])
-                    r, _ = t.generation(t.extract(dev), cfg)
+                    sols.append(t.extract(dev))
+                    r, _ = t.generation(sols[-1], cfg)
                     rows.append(dict(device=which, L_IN_nm=L, offset_nm=off, Vg=Vg,
                                      I_btbt_local=r["I_btbt_local"], I_btbt_nl=r["I_btbt_nonlocal"],
                                      I_btbt_nl_x=r["I_btbt_nonlocal_x"], I_btbt_nl_y=r.get("I_btbt_nonlocal_y", 0.0),
@@ -69,7 +71,13 @@ def run(which, offsets=OFFSETS_NM):
                           f"it={r['I_it']:.2e}", flush=True)
             finally:
                 dev.delete()
+            if sols:   # cached for post-processing checks (src.audit.model_form)
+                t.save_solutions(cache_path(which, L, off), sols, cfg)
     return pd.DataFrame(rows)
+
+
+def cache_path(which, L_IN_nm, offset_nm):
+    return os.path.join(OUT, "cache", f"wan_{which}_L{L_IN_nm:g}_off{offset_nm:g}.npz")
 
 
 def main():

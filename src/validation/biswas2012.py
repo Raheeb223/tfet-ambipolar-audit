@@ -44,12 +44,14 @@ def run(offsets=OFFSETS_NM):
     for off in offsets:
         cfg = device_cfg(base, off)
         dev = t.build(cfg)
+        sols = []
         try:
             for Vd in VD:
                 t.ramp_to(dev, VG[0], Vd)
                 for Vg in VG:
                     t.ramp_to(dev, Vg, Vd)
-                    r, _ = t.generation(t.extract(dev), cfg)
+                    sols.append(t.extract(dev))
+                    r, _ = t.generation(sols[-1], cfg)
                     rows.append(dict(offset_nm=off, Vd=Vd, Vg=Vg, I_btbt_local=r["I_btbt_local"],
                                      I_btbt_nl=r["I_btbt_nonlocal"], I_tat_bulk=r["I_tat_bulk"],
                                      i_it_per_D=r["I_it"] / D_REF))
@@ -57,7 +59,13 @@ def run(offsets=OFFSETS_NM):
                           f"tat={r['I_tat_bulk']:.2e} it={r['I_it']:.2e}", flush=True)
         finally:
             dev.delete()
+        if sols:   # cached for post-processing checks (src.audit.model_form)
+            t.save_solutions(cache_path(off), sols, cfg)
     return pd.DataFrame(rows)
+
+
+def cache_path(offset_nm):
+    return os.path.join(OUT, "cache", f"biswas_off{offset_nm:g}.npz")
 
 
 def field_coverage(points=((1.5, 1.0), (2.0, 1.0), (3.0, 0.5), (3.0, 1.0), (3.0, 1.5)), offset_nm=10.0):

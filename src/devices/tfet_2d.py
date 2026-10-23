@@ -389,6 +389,30 @@ def extract(dev):
                     vol=out["NodeVolume"], Vg=dev.Vg, Vd=dev.Vd, T=dev.cfg["temperature_K"])
 
 
+def save_solutions(path, sols, cfg):
+    """Cache solutions on one mesh (any mix of Vg, Vd) for later post-processing."""
+    import json
+    import os
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    data = {}
+    for k, s in enumerate(sols):
+        data.update({f"psi_{k}": s.psi, f"n_{k}": s.n, f"p_{k}": s.p})
+    s = sols[0]
+    np.savez_compressed(path, x=s.x, y=s.y, vol=s.vol, Vg=np.array([q.Vg for q in sols]),
+                        Vd=np.array([q.Vd for q in sols]), T=s.T, cfg=json.dumps(cfg), **data)
+
+
+def load_saved(path):
+    """(cfg, [Solution]) written by save_solutions."""
+    import json
+    z = np.load(path)
+    cfg = json.loads(str(z["cfg"]))
+    sols = [Solution(x=z["x"], y=z["y"], psi=z[f"psi_{k}"], n=z[f"n_{k}"], p=z[f"p_{k}"],
+                     vol=z["vol"], Vg=float(Vg), Vd=float(Vd), T=float(z["T"]))
+            for k, (Vg, Vd) in enumerate(zip(z["Vg"], z["Vd"]))]
+    return cfg, sols
+
+
 def field_magnitude(sol):
     dpdy, dpdx = np.gradient(sol.psi, sol.y, sol.x, edge_order=2)
     return np.hypot(dpdx, dpdy)
@@ -487,15 +511,42 @@ def _row_widths(y):
 
 
 def dit_shape(it, e, Eg):
-    """Relative D_it(E) at trap level e (eV from midgap); D_it_cm2eV is the midgap value.
+    """Relative D_it(E) at trap level e (eV from midgap); D_it_cm2eV sets the scale.
 
-    uniform: 1. u_shape: 1 + r * [exp(-(Eg/2 - e)/w) + exp(-(Eg/2 + e)/w)], the usual
-    U-shaped Si/oxide distribution with edge-to-midgap ratio ~r (u_ratio) and tail width w.
+    uniform: 1 (D_it_cm2eV is the density at every level).
+    u_shape: 1 + r * [exp(-(Eg/2 - e)/w) + exp(-(Eg/2 + e)/w)], the usual U-shaped Si/oxide
+      distribution with edge-to-midgap ratio ~r (u_ratio) and tail width w; D_it_cm2eV is the
+      midgap value.
+    gaussian: a peak at gauss_center_eV (from midgap) of width gauss_width_eV, normalized so the
+      total number of traps equals that of the uniform case (D_it_cm2eV * Eg); D_it_cm2eV is then
+      the gap-averaged density.
     """
-    if it.get("profile", "uniform") == "uniform":
+    prof = it.get("profile", "uniform")
+    if prof == "uniform":
         return 1.0
-    r, w = it.get("u_ratio", 50.0), it.get("u_width_eV", 0.1)
-    return 1.0 + r * (np.exp(-(0.5 * Eg - e) / w) + np.exp(-(0.5 * Eg + e) / w))
+    if prof == "gaussian":
+        e0, w = it.get("gauss_center_eV", 0.0), it.get("gauss_width_eV", 0.05)
+        return Eg / (w * np.sqrt(2.0 * np.pi)) * np.exp(-0.5 * ((e - e0) / w) ** 2)
+    if prof == "u_shape":
+        r, w = it.get("u_ratio", 50.0), it.get("u_width_eV", 0.1)
+        return 1.0 + r * (np.exp(-(0.5 * Eg - e) / w) + np.exp(-(0.5 * Eg + e) / w))
+    raise ValueError(f"unknown D_it profile {prof!r}")
+
+
+def dit_spatial(it, x, cfg):
+    """Relative D_it along the interface: 1 + (r - 1) exp(-|x - x_d| / L) around the drain
+    junction x_d = L_gate (implant damage at the drain-side gate edge, ASSUMPTION; r =
+    damage_ratio, L = damage_length_cm). 1 everywhere when damage_ratio is absent or 1.
+    gate_only: zero outside the gate span (spacer interfaces trap-free)."""
+    out = np.ones_like(x, dtype=float)
+    r = it.get("damage_ratio", 1.0)
+    if r != 1.0:
+        L = it.get("damage_length_cm", 1.0e-6)
+        out = out + (r - 1.0) * np.exp(-np.abs(x - cfg["geometry"]["L_gate_cm"]) / L)
+    if it.get("gate_only", False):             # no traps under the spacers (gate-stack interface only)
+        g0, g1 = gate_span(cfg)
+        out = np.where((x >= g0 - 1e-12) & (x <= g1 + 1e-12), out, 0.0)
+    return out
 
 
 def btbt_terms(sol, cfg):
@@ -533,31 +584,49 @@ def btbt_from_terms(terms, A, B):
     return float(np.sum(w[ok] * A * F[ok] ** pw * np.exp(-B / F[ok])))
 
 
-def interface_generation(sol, cfg, F_if, ni, Eg, Nc, Nv, kT):
+def interface_levels(it, Eg):
+    """Trap levels (eV from midgap) and their spacing: n_levels across the gap, ends dropped."""
+    Et = np.linspace(-0.5 * Eg, 0.5 * Eg, it["n_levels"])[1:-1]
+    return Et, Et[1] - Et[0]
+
+
+def interface_generation(sol, cfg, F_if, ni, Eg, Nc, Nv, kT, per_x=False):
     """Interface-trap generation integrated along the Si/oxide line (per cm width, A/cm).
 
-    R_s = integral dEt  D_it * sigma * v_th * (np - ni^2) /
-                       [ (n + n1)/(1 + Gn) + (p + p1)/(1 + Gp) ]
-    with D_it uniform over the gap and Hurkx Gamma evaluated with dE = band-to-trap
-    distance (field-enhanced emission into the band, as for bulk traps).
+    Per trap level e (sheet density N = D_it(e, x) dE), Hurkx field-enhanced SRH
+    (hurkx_tat.hurkx_srh_rate, the same rate as bulk TAT):
+
+        R_s = (np - ni^2) / [ tau_p/(1 + G_p) (n + n1) + tau_n/(1 + G_n) (p + p1) ],
+        tau_n = 1/(sigma_n v_th N),  tau_p = 1/(sigma_p v_th N)
+
+    G_n uses the electron range (Ec - Et) and G_p the hole range (Et - Ev), as in Hurkx 1992:
+    the n1 term is hole emission, the p1 term electron emission. Options (interface_traps):
+    sigma_n_cm2 / sigma_p_cm2 (default sigma_cm2), m_tunnel (default Hurkx 0.25), the
+    energy profile (dit_shape) and gate-edge damage (dit_spatial).
+    per_x=True returns the contribution of each interface node (A/cm) instead of the sum.
     """
     it = cfg["physics"]["interface_traps"]
     n, p = sol.n[0], sol.p[0]
-    Et = np.linspace(-0.5 * Eg, 0.5 * Eg, it["n_levels"])[1:-1]   # from midgap
-    dEt = Et[1] - Et[0]
-    s = it["sigma_cm2"] * it["v_th_cms"]
+    Et, dEt = interface_levels(it, Eg)
+    sig_n = it.get("sigma_n_cm2", it["sigma_cm2"])
+    sig_p = it.get("sigma_p_cm2", it["sigma_cm2"])
+    m = it.get("m_tunnel", hurkx_tat.M_HURKX)
+    space = dit_spatial(it, sol.x, cfg)
     Rs = np.zeros_like(n)
     for e in Et:
-        D = it["D_it_cm2eV"] * dit_shape(it, e, Eg)
+        N = it["D_it_cm2eV"] * dit_shape(it, e, Eg) * dEt * space
         n1, p1 = ni * np.exp(e / kT), ni * np.exp(-e / kT)
         if it["field_enhanced"]:
-            gn = hurkx_tat.gamma_fast(F_if, hurkx_tat.tunneling_energy_range(n, ni, Nc, kT, 0.5 * Eg - e), sol.T)
-            gp = hurkx_tat.gamma_fast(F_if, hurkx_tat.tunneling_energy_range(p, ni, Nv, kT, 0.5 * Eg + e), sol.T)
+            gn = hurkx_tat.gamma_fast(F_if, hurkx_tat.tunneling_energy_range(n, ni, Nc, kT, 0.5 * Eg - e), sol.T, m)
+            gp = hurkx_tat.gamma_fast(F_if, hurkx_tat.tunneling_energy_range(p, ni, Nv, kT, 0.5 * Eg + e), sol.T, m)
         else:
             gn = gp = 0.0
-        Rs += D * dEt * s * (n * p - ni**2) / ((n + n1) / (1 + gn) + (p + p1) / (1 + gp))
+        # hurkx_srh_rate with tau_n = 1/(sigma_n v N), tau_p = 1/(sigma_p v N), multiplied out
+        # so that N -> 0 (far tail of a narrow spectrum) gives 0 instead of an overflow
+        Rs += N * it["v_th_cms"] * (n * p - ni**2) / ((n + n1) / (sig_p * (1.0 + gp))
+                                                      + (p + p1) / (sig_n * (1.0 + gn)))
     dx = _row_widths(sol.x)
-    return Q * np.sum(-Rs * dx)
+    return Q * -Rs * dx if per_x else Q * np.sum(-Rs * dx)
 
 
 def transfer(cfg, Vg_list, Vd=None, dev=None):
@@ -618,13 +687,13 @@ def interface_trap_charge(sol, cfg):
     Eg = float(silicon.bandgap(T))
     ni = float(silicon.intrinsic_density(T))
     n, p = sol.n[0], sol.p[0]
-    Et = np.linspace(-0.5 * Eg, 0.5 * Eg, it["n_levels"])[1:-1]
-    dE = Et[1] - Et[0]
+    Et, dE = interface_levels(it, Eg)
+    space = dit_spatial(it, sol.x, cfg)
     Qs = np.zeros_like(n)
     for e in Et:
         n1, p1 = ni * np.exp(e / kT), ni * np.exp(-e / kT)
         f = (n + p1) / (n + n1 + p + p1)
-        D = it["D_it_cm2eV"] * dit_shape(it, e, Eg) * dE
+        D = it["D_it_cm2eV"] * dit_shape(it, e, Eg) * dE * space
         Qs += D * ((1.0 - f) if e < 0 else -f)
     return Qs
 

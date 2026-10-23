@@ -60,14 +60,14 @@ def j_nonlocal(F_max, A, B, V_t, V_R=1.0, Eg=EG_300, P=P_INDIRECT, dE=2e-3, kT=0
 MODELS = {"local": j_local, "nonlocal": j_nonlocal}
 
 
-def fit(F, J, model, V_t=EG_300 + 1.0, p0=(np.log10(4e14), 1.9e7)):
-    """Least squares in log10 J over (log10 A, B). Returns dict with values, 1-sigma errors,
-    correlation, rms residual (decades) and residuals."""
+def fit(F, J, model, V_t=EG_300 + 1.0, p0=(np.log10(4e14), 1.9e7), P=P_INDIRECT):
+    """Least squares in log10 J over (log10 A, B) at fixed exponent P. Returns dict with values,
+    1-sigma errors, correlation, rms residual (decades) and residuals."""
     f = MODELS[model]
     F, J = np.asarray(F, float), np.asarray(J, float)
 
     def res(p):
-        return np.log10(f(F, 10 ** p[0], p[1] * 1e7, V_t)) - np.log10(J)
+        return np.log10(f(F, 10 ** p[0], p[1] * 1e7, V_t, P=P)) - np.log10(J)
 
     sol = least_squares(res, x0=[p0[0], p0[1] / 1e7], x_scale=[1.0, 0.1], method="lm")
     r = sol.fun
@@ -81,7 +81,7 @@ def fit(F, J, model, V_t=EG_300 + 1.0, p0=(np.log10(4e14), 1.9e7)):
         "sd_log10A": float(sd[0]), "sd_B": float(sd[1] * 1e7),
         "corr": float(cov[0, 1] / (sd[0] * sd[1])),
         "rms_dec": float(np.sqrt(np.mean(r ** 2))), "max_dec": float(np.max(np.abs(r))),
-        "residuals": r.tolist(), "n": len(F),
+        "residuals": r.tolist(), "n": len(F), "P": P,
     }
 
 
@@ -131,6 +131,43 @@ def main():
     os.makedirs(os.path.join("results", "calibration"), exist_ok=True)
     with open(os.path.join("results", "calibration", "btbt_calibration.json"), "w") as fh:
         json.dump(out, fh, indent=1)
+    alt = alternatives(F, J, lab)
+    with open(os.path.join("results", "calibration", "btbt_alternatives.json"), "w") as fh:
+        json.dump(alt, fh, indent=1)
+
+
+def alternatives(F, J, lab, P_list=(2.0, 3.0), n_low=4):
+    """Structurally different but equally admissible calibrations (junction data only), used to
+    bound the extrapolation of (A, B) beyond the calibrated field range:
+      * P = 2 and P = 3 instead of 2.5 (the prefactor exponent sets how G extrapolates);
+      * a fit on the n_low lowest-field points only, scored on the held-out higher-field points
+        (an out-of-sample extrapolation test over a field ratio like the audit's);
+      * one fit per source (leave-one-source-out).
+    Returns {model: {name: {A, B, P, rms_dec, [heldout_rms_dec, heldout_bias_dec]}}}."""
+    order = np.argsort(F)
+    lo, hi = order[:n_low], order[n_low:]
+    out = {"field_split_Vcm": float(0.5 * (F[lo].max() + F[hi].min())),
+           "field_ratio_extrapolated": float(F[hi].max() / F[lo].max())}
+    for m in MODELS:
+        d = {}
+        for P in P_list:
+            r = fit(F, J, m, P=P)
+            d[f"P{P:g}"] = {k: r[k] for k in ("A", "B", "P", "rms_dec")}
+        r = fit(F[lo], J[lo], m)
+        res = np.log10(MODELS[m](F[hi], r["A"], r["B"], EG_300 + 1.0)) - np.log10(J[hi])
+        d["low_field_half"] = {"A": r["A"], "B": r["B"], "P": r["P"], "rms_dec": r["rms_dec"],
+                               "heldout_rms_dec": float(np.sqrt(np.mean(res ** 2))),
+                               "heldout_bias_dec": float(np.mean(res))}
+        labs = np.array(lab)
+        for k, src in enumerate(sorted(set(lab))):
+            keep = labs == src
+            r = fit(F[keep], J[keep], m)
+            d[f"source{k + 1}"] = {"A": r["A"], "B": r["B"], "P": r["P"], "rms_dec": r["rms_dec"],
+                                   "source": src}
+        out[m] = d
+        print(m, {k: (f"{v['A']:.3g}", f"{v['B']:.4g}", round(v.get("heldout_rms_dec", v["rms_dec"]), 2))
+                  for k, v in d.items()})
+    return out
 
 
 if __name__ == "__main__":

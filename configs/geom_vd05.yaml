@@ -1,0 +1,41 @@
+# CALIBRATED BTBT. Device-matrix check (are D_x, S_inf and the ranking transferable?):
+# drain bias 0.5 V instead of 1 V (the audit Vg are then at V_GD = Vg - 0.5 V)
+# Same five devices, techniques and scenarios as audit_calibrated.yaml, 300 K, reduced set.
+base_config: configs/tfet_2d.yaml
+out_dir: results/geom/vd05
+cache_dir: results/geom/vd05/cache
+calibration: results/calibration/btbt_calibration.json
+mesh_refine: 2
+common_changes:
+  bias.V_drain: 0.5
+
+bias:
+  V_drain: 0.5
+  Vg_ambipolar: -1.0
+  Vg_sweep: [0.0, -0.2, -0.4, -0.6, -0.8, -1.0]
+
+devices:
+  reference: {}
+  heterogate:
+    dielectric.eps_gate_drain_side: 3.9
+    dielectric.heterogate_length_cm: 2.0e-6
+  low_drain_doping:
+    doping.drain_donors_cm3: 5.0e18
+  gd_underlap:
+    geometry.gate_underlap_drain_cm: 1.0e-6
+  dual_wf_gate:
+    gate.workfunction_drain_side_eV: 4.0
+    gate.dual_gate_length_cm: 2.0e-6
+
+temperatures_K: [300.0]
+
+baseline:
+  T_K: 300.0
+  btbt_model: local
+  tat_bulk: false
+  interface_traps: false
+
+scenarios:
+  btbt_model: [local, nonlocal]
+  D_it_cm2eV: [0.0, 1.0e11, 1.0e12]
+  tau_s: [1.0e-7]

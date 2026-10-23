@@ -133,7 +133,7 @@ def fig_structure(cfg_path="configs/tfet_2d.yaml"):
 def fig_transfer(df):
     """Ambipolar branch of all five devices under three levels of physics (300 K)."""
     fig, axs = plt.subplots(1, 3, figsize=(7.1, 2.3), sharey=True)
-    panels = [("(a) Claimed: local, default param.", dict(kind="baseline")),
+    panels = [("(a) Literature practice: local, default param.", dict(kind="baseline")),
               ("(b) Calibrated nonlocal + bulk TAT", dict(kind="realistic", btbt_model="nonlocal",
                                                    D_it=0.0, tau=TAU0, T_K=T0)),
               ("(c) (b) + interface TAT, $D_{it}=10^{12}$",
@@ -180,7 +180,7 @@ def fig_components(df):
 def fig_suppression(rules, rules02):
     """Claimed vs surviving suppression for each technique (decades), at two biases."""
     fig, axs = plt.subplots(1, 2, figsize=(7.0, 2.4), sharey=True)
-    bars = [("Claimed (local, default param.)", lambda d: d[d.T_K == T0].S_claim, "0.6"),
+    bars = [("Literature practice (local, default param.)", lambda d: d[d.T_K == T0].S_claim, "0.6"),
             ("Calibrated nonlocal, no $D_{it}$, 300 K", lambda d: d[d.T_K == T0].S_0, "C0"),
             ("$D_{it}=10^{12}$, 300 K", lambda d: d[d.T_K == T0].S_1e12, "C1"),
             (r"$D_{it}=5{\times}10^{12}$, 398 K", lambda d: d[np.isclose(d.T_K, TH)].S_5e12, "C3"),
@@ -291,15 +291,25 @@ def fig_straggle(sens):
 def _e(v):
     """1.23e-09 -> 1.2\\times10^{-9} (LaTeX math)."""
     if v is None or not np.isfinite(v):
-        return "\infty"
+        return r"\infty"
     m, e = f"{v:.1e}".split("e")
     return f"{m}\\times10^{{{int(e)}}}"
 
 
+# Highest D_it at which the linear, uncharged decomposition was checked against self-consistent
+# trap charge (src.audit.charged_traps). Larger D_x values are quoted only as a bound.
+DX_CAP = 1e13
+
+
+def _dx(v):
+    """D_x / D_1/2 in LaTeX math, quoted as a bound above the verified range."""
+    if v is None or not np.isfinite(v) or v > DX_CAP:
+        return ">10^{13}"
+    return _e(v)
+
+
 def _dit(v):
-    if v is None or (isinstance(v, float) and not np.isfinite(v)):
-        return "$>10^{16}$"
-    return f"${_e(v)}$"
+    return f"${_dx(v)}$"
 
 
 def write_tables(rules, rules06, sens):
@@ -369,10 +379,10 @@ def write_numbers(df, rules, sens):
         N[f"SlocD{k}"] = f"{b.S_1e12:.2f}"
         N[f"Rworst{k}"] = f"{h.S_5e12 / a.S_claim:.2f}"
         N[f"RtrapWorst{k}"] = f"{h.S_5e12 / a.S_0:.2f}"
-        N[f"Dcross{k}"] = _e(a.D_cross)
-        N[f"DcrossHot{k}"] = _e(h.D_cross)
-        N[f"Dhalf{k}"] = _e(a.D_half)
-        N[f"DhalfHot{k}"] = _e(h.D_half)
+        N[f"Dcross{k}"] = _dx(a.D_cross)
+        N[f"DcrossHot{k}"] = _dx(h.D_cross)
+        N[f"Dhalf{k}"] = _dx(a.D_half)
+        N[f"DhalfHot{k}"] = _dx(h.D_half)
     lost = [1 - g(nl, d, TH).S_5e12 / g(nl, d).S_0 for d in ("heterogate", "low_drain_doping", "gd_underlap")]
     N["LostMin"], N["LostMax"] = f"{100 * min(lost):.0f}", f"{100 * max(lost):.0f}"
     N["LostDWF"] = f"{100 * (1 - g(nl, 'dual_wf_gate', TH).S_5e12 / g(nl, 'dual_wf_gate').S_0):.0f}"
@@ -416,7 +426,7 @@ def fig_bias(br):
         axs[1].semilogy(h.Vg, h.D_cross, "--", color=COL[dev], lw=0.9)
     axs[0].plot([], [], "k-", label="$D_{it}=0$")
     axs[0].plot([], [], "k--", label="$10^{11}$")
-    axs[0].plot([], [], "k:", label="$10^{12}\,$cm$^{-2}$eV$^{-1}$")
+    axs[0].plot([], [], "k:", label=r"$10^{12}\,$cm$^{-2}$eV$^{-1}$")
     axs[0].set_ylabel("Suppression $S$ (dec)")
     axs[0].set_title("(a) Calibrated nonlocal, 300 K")
     axs[1].axhspan(1e11, 1e12, color="0.85", zorder=0)
@@ -437,7 +447,7 @@ def write_bias(br):
         cells = []
         for Vg in (-0.2, -0.6, -1.0):
             r = nl[(nl.device == dev) & np.isclose(nl.Vg, Vg)].iloc[0]
-            cells.append(f"{r.S_0:.2f} & {r.S_1e11:.2f} & {r.S_1e12:.2f} & ${_e(r.D_cross)}$")
+            cells.append(f"{r.S_0:.2f} & {r.S_1e11:.2f} & {r.S_1e12:.2f} & ${_dx(r.D_cross)}$")
         lines.append(f"{SHORT[dev]} & " + " & ".join(cells) + "\\\\")
         r = nl[(nl.device == dev) & np.isclose(nl.Vg, -0.2)].iloc[0]
         k = SHORT[dev]
@@ -445,7 +455,7 @@ def write_bias(br):
         N[f"SbiasEleven{k}"] = f"{r.S_1e11:.1f}"
         N[f"SbiasTwelve{k}"] = f"{r.S_1e12:.1f}"
         N[f"SinfBias{k}"] = f"{r.S_inf:.1f}"
-        N[f"DxBias{k}"] = _e(r.D_cross)
+        N[f"DxBias{k}"] = _dx(r.D_cross)
     s = nl[np.isclose(nl.Vg, -0.2)]
     lost = s.S_0 - s.S_1e12
     N["BiasLostMin"], N["BiasLostMax"] = f"{lost.min():.1f}", f"{lost.max():.1f}"

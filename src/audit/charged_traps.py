@@ -16,8 +16,8 @@ from src.audit import run_audit as ra
 from src.config import load_yaml
 from src.devices import tfet_2d as t
 
-D_LIST = [1e11, 1e12, 5e12]
-VG_LIST = [-0.6, -1.0]
+D_LIST = [1e11, 1e12, 5e12, 1e13]    # 1e13: upper end of the verified linear range
+VG_LIST = [-0.2, -0.6, -1.0]     # -0.2 V: the near-off-state bias of the main claim
 TEMPS = [300.0, 398.15]
 TAU = 1e-7
 
@@ -40,7 +40,14 @@ def main(audit_file="configs/audit_calibrated.yaml"):
                         it_iter = 0
                         for charged in ((False, True) if D else (False,)):
                             if charged:
-                                it_iter = t.solve_charged_traps(dev, c)
+                                try:
+                                    it_iter = t.solve_charged_traps(dev, c)
+                                except RuntimeError:          # recorded as not converged
+                                    t.clear_trap_charge(dev)
+                                    rows.append(dict(device=name, T_K=T, Vg=Vg, D_it=D, charged=True,
+                                                     iterations=-1, I_btbt_local=np.nan, I_btbt_nl=np.nan,
+                                                     I_tat_bulk=np.nan, I_it=np.nan))
+                                    continue
                             r, _ = t.generation(t.extract(dev), c)
                             rows.append(dict(device=name, T_K=T, Vg=Vg, D_it=D, charged=charged,
                                              iterations=it_iter, I_btbt_local=r["I_btbt_local"],

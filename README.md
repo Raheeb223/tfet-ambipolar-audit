@@ -58,7 +58,17 @@ That module also turns on DEVSIM's 128-bit extended precision; without it, low c
 .venv\Scripts\python -m src.analysis.validation_figs     # calibration/validation figures, numbers
 .venv\Scripts\python -m src.analysis.checks_numbers      # robustness-check numbers
 .venv\Scripts\python -m src.analysis.extval_figs         # independent checks: fig_extval, Table data
+# robustness and scope
+.venv\Scripts\python -m src.audit.run_audit --audit configs/geom_tsi5.yaml   # device matrix (also tsi20,
+                                                     # tox3, lg30, nd5e19, vd05), ~10 min each
+.venv\Scripts\python -m src.audit.model_form --parts slopes btbt ensemble floors spatial validation  # model-form ensemble
+.venv\Scripts\python -m src.audit.qf_validity           # quasi-Fermi-level validity map
+.venv\Scripts\python -m src.analysis.robustness_figs    # fig_robust, claim/device/trap-model tables
 ```
+
+`src.validation.wan2011` and `src.validation.biswas2012` cache their solutions in
+`results/validation/cache/`; `model_form --parts validation` re-uses them to test the alternative
+path and trap models on the measured devices without re-solving.
 
 The paper never contains hand-typed results: the scripts write `paper/generated/numbers*.tex`,
 which define a macro for every quoted number, and `paper/figs/` (both git-ignored).
@@ -75,13 +85,15 @@ src/config.py       YAML loader that reads 1e19-style numbers as floats
 src/devsim_env.py   DEVSIM import with MKL + extended precision
 src/materials/      Si Eg(T), ni(T); SiGe bandgap relations
 src/physics/        kane_btbt.py (local Kane), nonlocal_btbt.py (path-based Kane),
+                    nonlocal_field_paths.py (gradient-at-start and angle-complete 2D paths),
                     hurkx_tat.py (Hurkx field-enhanced SRH, quadrature Gamma)
 src/devices/        diode_1d.py (1D p+/n+ diode), tfet_2d.py (2D DG-TFET, generation post-processing)
 src/dataio/         digitized-data loader; enforces "never calibrate on validation data"
 src/dataio/         plot_digitizer.py (vector/raster), extract_literature.py (all curves)
 src/calibration/    btbt_calibration.py (junction J(F) fit of local and nonlocal Kane)
 src/validation/     wan2011.py (blind validation on measured SOI TFETs), biswas2012.py (on-state)
-src/audit/          run_audit.py (solve + cache + scenarios), metrics.py, charged_traps.py
+src/audit/          run_audit.py (solve + cache + scenarios), metrics.py, charged_traps.py,
+                    model_form.py (structural ensemble), qf_validity.py (transport validity)
 src/uq/             btbt_uq.py (Monte Carlo over the calibration covariance)
 src/analysis/       figures.py, validation_figs.py, checks_numbers.py, coverage.py, extval_figs.py
 paper/              local only (git-ignored): generated figs/ and generated/ numbers
@@ -113,9 +125,18 @@ results/            generated outputs (git-ignored; regenerate from scripts)
 | Validation data never reach a fit (code-enforced role check) | test passes |
 | Parameter-free BTBT terms reproduce generation() to 1e-10 (used by UQ) | test passes |
 | Charged-trap fixed point: D_it = 0 unchanged, converges, correct sign | test passes |
-| Blind validation, Wan 2011: nonlocal 0.3-0.8 dec (L_IN = 10 nm), local 2.4-3.6 dec | done |
+| Blind validation, Wan 2011 (nonlocal vs local, all offsets) | done |
+| Interface TAT = Hurkx closed form for a single level (pairing n1<->Gamma_p, p1<->Gamma_n), sigma scaling, spectra, damage | tests pass |
+| Field-direction paths: axis = 1D, 0/90 deg invariance, 45 deg = single family, bins converge; angle-complete >= gradient | tests pass |
+| Calibration refit at other P recovers synthetic (A, B) | test passes |
+| Quasi-Fermi drop = Ohm's law on a uniform sheet | test passes |
 
 ## Known limitations / open TODOs
+
+- **Fixed 2026-10-23: interface-TAT pairing.** `interface_generation` paired the n1 term with
+  the electron enhancement Gamma_n instead of Gamma_p (Hurkx 1992; the bulk-TAT code was
+  right). Midgap traps were unaffected; off-midgap traps were under-counted, so the interface
+  current was 2-11x too low. All trap-dependent results were regenerated.
 
 - **Equilibrium factor on local BTBT.** G is multiplied by (ni² − np)/(ni² + np), so the local model
   carries no current at 0 V; without it the 1D diode gives ~1e-2 A/cm² at 0 V. The factor is not from
@@ -124,7 +145,8 @@ results/            generated outputs (git-ignored; regenerate from scripts)
 - **Hurkx closed-form Γ** overestimates Γ by up to ~10⁷ at drain-junction fields. RESOLVED: the 2D
   workflow uses `gamma_fast` (vectorized quadrature) in post-processing.
 - **Hurkx ΔE** = min(E_band − E_t, kT ln(N/n)) is a common simplification, not yet checked
-  line-by-line against Hurkx 1992.
+  line-by-line against Hurkx 1992. Its consequences are bounded by the model-form ensemble
+  (tunneling mass, spectra, cross-sections, plain SRH).
 - **Traps are uncharged** in the main audit (linear in D_it); `charged_traps.py` checks the
   self-consistent case (|dS| <= 0.16 decade up to 1e12, 0.37 at 5e12).
 - **Not in the 2D model:** Fermi-Dirac statistics, bandgap narrowing, Auger generation, band

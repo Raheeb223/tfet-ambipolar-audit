@@ -71,5 +71,13 @@ physics:
     D_it_cm2eV: 1.0e12        # uniform in energy across the gap; UQ input
     sigma_cm2: 1.0e-15        # capture cross-section, ASSUMPTION
     v_th_cms: 1.0e7
-    field_enhanced: true      # Hurkx Gamma on the interface rate
+    field_enhanced: true      # Hurkx Gamma on the interface rate (pairing as Hurkx 1992:
+                              # n1 term with Gamma_p(Et-Ev), p1 term with Gamma_n(Ec-Et))
     n_levels: 41
+    # Model-form options (defaults = main audit; src/audit/model_form.py varies them):
+    # sigma_n_cm2 / sigma_p_cm2: unequal capture cross-sections (default sigma_cm2 for both)
+    m_tunnel: 0.25            # Hurkx tunneling mass m*/m0 (ASSUMPTION; varied 0.1-0.5)
+    profile: uniform          # uniform | u_shape (u_ratio, u_width_eV) | gaussian
+                              # (gauss_center_eV from midgap, gauss_width_eV; same total traps)
+    damage_ratio: 1.0         # D_it x (1 + (r-1) exp(-|x - L_gate|/L)): implant damage at the
+    damage_length_cm: 1.0e-6  # drain junction (ASSUMPTION; r = 10 tested, Luong 2017)
