@@ -320,7 +320,8 @@ def check_conversions(M):
         lo = macro_value(M[f"DingRatio{tags[r.variant]}Lo"])
         hi = macro_value(M[f"DingRatio{tags[r.variant]}Hi"])
         bad += int(not (0.9 * r.ratio_min <= lo <= r.ratio_min and r.ratio_max <= hi <= 1.12 * r.ratio_max))
-    recs.append(record("C", "irradiation exclusion: ratios recomputed, rule ratio_min > 1, "
+    nom = summ.set_index("variant").ratio_min["nominal"]
+    recs.append(record("C", f"irradiation exclusion: ratios recomputed (nominal min {nom:.0f}), rule ratio_min > 1, "
                        "quoted bounds conservative", 2 * len(summ), bad, 0, bad == 0, "rows"))
     return recs
 
@@ -363,7 +364,8 @@ def check_ensemble(M):
     cl = pd.read_csv(os.path.join("results", "model_form", "claims.csv")).set_index(["path", "params", "it"])
     cl.columns = [c.split("_")[0] for c in cl.columns]
     mism = int((cv.sort_index() != cl.sort_index()[cv.columns]).to_numpy().sum())
-    recs.append(record("D", "claims per model: vectorized vs pipeline", cv.size, mism, 0, mism == 0, "cells"))
+    recs.append(record("D", f"claims per model ({len(cv)} models x {cv.shape[1]} claims): vectorized vs pipeline",
+                       cv.size, mism, 0, mism == 0, "cells"))
 
     it = cv.index.get_level_values("it")
     sets = {"Ens": cv, "EnsEnh": cv[it != "no_field_enh"], "EnsStrong": cv[~it.isin(weak)]}

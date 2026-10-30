@@ -145,6 +145,7 @@ def fig_transfer(df):
         ax.set_title(title)
         ax.set_xlabel("$V_{GS}$ (V)")
         ax.axvline(VAMB, color="k", lw=0.4, ls=":")
+        ax.text(VAMB + 0.03, 4e-4, f"$V_{{GS}}={VAMB:g}$ V", fontsize=6, va="center")
         ax.grid(True, which="major", alpha=0.3)
     axs[0].set_ylabel("$I_D$ (A/µm), $V_{DS}$ = 1 V")
     axs[0].set_ylim(1e-14, 1e-3)
@@ -312,6 +313,11 @@ def _dit(v):
     return f"${_dx(v)}$"
 
 
+def _dhalf(v):
+    """D_1/2 table entry: a dash where it does not exist (S_inf >= S_0/2), else as _dit."""
+    return "--" if v is None or not np.isfinite(v) else _dit(v)
+
+
 def write_tables(rules, rules06, sens):
     os.makedirs(GEN, exist_ok=True)
     nl, lo = rules[rules.btbt_model == "nonlocal"], rules[rules.btbt_model == "local"]
@@ -332,8 +338,8 @@ def write_tables(rules, rules06, sens):
              for m in ("local", "nonlocal") for T in (T0, TH)}
         lines.append(
             f"{SHORT[dev]} & {_dit(r['local', T0].D_cross)} & {_dit(r['nonlocal', T0].D_cross)} & "
-            f"{_dit(r['nonlocal', TH].D_cross)} & {_dit(r['local', T0].D_half)} & "
-            f"{_dit(r['nonlocal', T0].D_half)} & {_dit(r['nonlocal', TH].D_half)}\\\\")
+            f"{_dit(r['nonlocal', TH].D_cross)} & {_dhalf(r['local', T0].D_half)} & "
+            f"{_dhalf(r['nonlocal', T0].D_half)} & {_dhalf(r['nonlocal', TH].D_half)}\\\\")
     with open(os.path.join(GEN, "tab_dit.tex"), "w") as f:
         f.write("\n".join(lines) + "\n")
     if sens is not None and sens.sigma_nm.nunique() > 1:

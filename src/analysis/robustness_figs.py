@@ -61,7 +61,7 @@ def _rng(lo, hi, f="{:.2f}"):
     """Numeric range in math mode, so that negative ends render as minus signs."""
     if f.format(lo) == f.format(hi):
         return f"${f.format(lo)}$"
-    sep = " to " if hi < 0 else "--"                   # "-0.67 to -0.19", not "-0.67--0.19"
+    sep = " to " if lo < 0 else "--"                   # "-0.67 to -0.19", "-0.01 to 2.04", not "-0.01--2.04"
     return f"${f.format(lo)}${sep}${f.format(hi)}$"
 
 
