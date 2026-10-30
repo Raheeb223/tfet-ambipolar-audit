@@ -37,9 +37,17 @@ different devices from their trap measurements) already points that way.
 ## Devices
 
 - Si (or SOI) TFETs of **one design**, from at least **two D_it splits** that differ by about a
-  factor of ten. Typical: with and without forming-gas anneal (e.g. 400-450 C, H2/N2, 30 min),
-  or a deliberately damaged split. All other process steps identical.
+  factor of ten; **three splits** (e.g. with forming-gas anneal, without it, and a deliberately
+  degraded interface) are preferred, because they also test the linearity of the current in
+  D_it on which S_inf and D_x rest. Typical anneal: 400-450 C, H2/N2, 30 min. All other
+  process steps identical.
+- A split must change D_it only. Check the flat-band voltage (C-V on capacitors from the same
+  wafers) and the subthreshold slope of companion MOSFETs. Irradiation is a poor split: it
+  also creates oxide charge and traps at other interfaces, which then need their own
+  characterization.
 - At least 3 devices per split, so that device-to-device spread can be seen.
+- Preferably both a plain device and a device with a suppression technique, so that S_inf and
+  D_x can be measured (see "Metrics" below).
 - Note any suppression technique (heterogate, low drain doping, underlap, dual work function);
   set `sim_devices` in `configs/holdout.yaml` to the matching simulated device(s), or to
   `[reference]` for a plain device.
@@ -54,6 +62,10 @@ different devices from their trap measurements) already points that way.
    - otherwise: conductance method or high-low frequency C-V on capacitors.
    - Report the value used (`Dit_cm2eV`) and a low/high bracket (`Dit_lo_cm2eV`,
      `Dit_hi_cm2eV`) reflecting the method's uncertainty.
+   - Conventional charge pumping averages over the whole channel interface, while the
+     ambipolar current is generated at the drain-side gate edge. If possible, add a
+     measurement weighted to that edge, e.g. the gated-diode generation current of the drain
+     junction with the source floating.
 2. **Transfer curves versus temperature, every device**:
    - V_DS = 0.5 V (record the value), V_GS swept through the off-state minimum and at least
      0.5 V into the ambipolar branch, steps <= 25 mV;
@@ -62,6 +74,8 @@ different devices from their trap measurements) already points that way.
    - check that the gate current stays at least ten times below the drain current at the
      off-state point; otherwise the point measures gate leakage, not the channel.
    - Repeat the 300 K curve at the end to rule out drift or annealing during the run.
+3. **Output curves** (I_D versus V_DS) at one ambipolar gate bias, at 300 K, to check the
+   drain-bias dependence.
 
 ## Data format
 
@@ -89,5 +103,15 @@ lists which trap variants are consistent with both (`results/holdout/verdict.csv
 `configs/holdout.yaml`) and states whether the surviving variants put the techniques
 trap-limited at the measured D_it: **holds**, **fails**, **not settled**, or **model class
 rejected**.
+
+## Metrics
+
+The model current is linear in D_it, I = I_0 + a D_it. A linear fit of the 300 K off-state
+current against the measured D_it of the splits, for each design, therefore gives the paper's
+metrics directly, without separating BTBT and TAT components: D_x = I_0^k / a^k and
+S_inf = log10(a^ref / a^k). With three splits the fit also tests the linearity. If a^k is not
+resolved from zero, only a lower bound on D_x follows (the weak-enhancement outcome). Report
+both with confidence intervals that propagate the D_it bracket and the device-to-device
+spread. This fit is not part of the scoring script.
 
 Raw data may be kept private; the scoring output can be published without it.
