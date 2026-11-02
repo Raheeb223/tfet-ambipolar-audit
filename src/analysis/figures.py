@@ -154,27 +154,44 @@ def fig_transfer(df):
 
 
 def fig_components(df):
-    """Current components vs V_GS: where the drain-side current comes from."""
+    """Current components vs V_GS: where the drain-side current comes from.
+
+    Uses the 20 mV re-solved sweep (src/analysis/fine_sweep.py; identical to the audit
+    table at the shared 0.2 V points). Nonlocal BTBT is split by path location: the
+    drain-side (ambipolar) branch ends where the drain band overlap closes, and the
+    source-side (on-state) branch starts near +0.2 V; the 0.2 V audit grid drew both as
+    vertical jumps. Exact zeros (no band overlap, no path) are left out, not floored.
+    """
+    fine = pd.read_csv(os.path.join(AUD, "fine_sweep.csv"))
+    pos = lambda s: s.where(s > 0)                                    # noqa: E731
     fig, axs = plt.subplots(1, 2, figsize=(7.1, 2.4), sharey=True)
     for ax, dev in zip(axs, ["reference", "low_drain_doping"]):
         for T, ls in ((T0, "-"), (TH, "--")):
-            d = _sel(df, kind="realistic", device=dev, btbt_model="nonlocal", D_it=DREF,
-                     tau=TAU0, T_K=T).sort_values("Vg")
-            dl = _sel(df, kind="realistic", device=dev, btbt_model="local", D_it=0.0,
-                      tau=TAU0, T_K=T).sort_values("Vg")
+            d = fine[(fine.device == dev) & np.isclose(fine.T_K, T)].sort_values("Vg")
+            d = d[d.Vg <= 0.4 + 1e-9]
             tl = f"{T:.0f} K"
-            ax.semilogy(d.Vg, d.I_btbt, ls, color="C0", label=f"nonlocal BTBT, {tl}")
+            ax.semilogy(d.Vg, pos(d.I_nl_x_drn), ls, color="C0",
+                        label=f"nonlocal BTBT, drain side, {tl}")
             ax.semilogy(d.Vg, d.I_it, ls, color="C3", label=f"interface TAT, {tl}")
             ax.semilogy(d.Vg, d.I_tat_bulk, ls, color="C2", label=f"bulk TAT, {tl}")
             if T == T0:
-                ax.semilogy(dl.Vg, dl.I_btbt, ":", color="0.4", label="local BTBT (cal.), 300 K")
+                ax.semilogy(d.Vg, pos(d.I_nl_x_src), "-", color="C0", lw=0.8, alpha=0.45,
+                            label="nonlocal BTBT, source side (on-state), 300 K")
+                ax.semilogy(d.Vg, d.I_btbt_local, ":", color="0.4",
+                            label="local BTBT (cal.), 300 K")
         ax.set_title(f"{LABEL[dev]}: $D_{{it}}=10^{{12}}$, $\\tau=10^{{-7}}$ s")
         ax.set_xlabel("$V_{GS}$ (V)")
         ax.grid(True, which="major", alpha=0.3)
     axs[0].set_ylabel("Current component (A/µm)")
     axs[0].set_ylim(1e-15, 1e-5)
     h, lab = axs[0].get_legend_handles_labels()
-    fig.legend(h, lab, loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.3), frameon=False)
+    order = ["nonlocal BTBT, drain side, 300 K", "nonlocal BTBT, drain side, 398 K",
+             "nonlocal BTBT, source side (on-state), 300 K", "interface TAT, 300 K",
+             "interface TAT, 398 K", "local BTBT (cal.), 300 K", "bulk TAT, 300 K",
+             "bulk TAT, 398 K"]
+    idx = [lab.index(k) for k in order]
+    fig.legend([h[i] for i in idx], [lab[i] for i in idx], loc="lower center", ncol=3,
+               bbox_to_anchor=(0.5, -0.36), frameon=False)
     _save(fig, "fig_components")
 
 

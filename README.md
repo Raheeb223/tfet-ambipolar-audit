@@ -59,6 +59,7 @@ That module also turns on DEVSIM's 128-bit extended precision; without it, low c
 .venv\Scripts\python -m src.uq.btbt_uq                   # Monte Carlo over (A, B)
 .venv\Scripts\python -m src.audit.charged_traps          # self-consistent trap charge
 .venv\Scripts\python -m src.analysis.coverage            # calibrated field range check
+.venv\Scripts\python -m src.analysis.fine_sweep          # 20 mV re-solve for fig_components (~15 min)
 .venv\Scripts\python -m src.analysis.figures             # audit figures, tables, numbers
 .venv\Scripts\python -m src.analysis.validation_figs     # calibration/validation figures, numbers
 .venv\Scripts\python -m src.analysis.checks_numbers      # robustness-check numbers
@@ -106,7 +107,8 @@ src/audit/          run_audit.py (solve + cache + scenarios), metrics.py, charge
                     model_form.py (structural ensemble), qf_validity.py (transport validity)
 src/uq/             btbt_uq.py (Monte Carlo over the calibration covariance)
 src/analysis/       figures.py, validation_figs.py, checks_numbers.py, coverage.py, extval_figs.py,
-                    math_checks.py (closed-form, independent re-derivation of the derived numbers)
+                    math_checks.py (closed-form, independent re-derivation of the derived numbers),
+                    fine_sweep.py (20 mV bias re-solve and BTBT source/drain split)
 paper/              local only (git-ignored): generated figs/ and generated/ numbers
 tests/              unit + DEVSIM verification tests
 results/            generated outputs (git-ignored; regenerate from scripts)
