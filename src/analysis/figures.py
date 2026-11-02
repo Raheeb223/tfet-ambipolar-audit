@@ -165,7 +165,7 @@ def fig_components(df):
     fine = pd.read_csv(os.path.join(AUD, "fine_sweep.csv"))
     pos = lambda s: s.where(s > 0)                                    # noqa: E731
     fig, axs = plt.subplots(1, 2, figsize=(7.1, 2.4), sharey=True)
-    for ax, dev in zip(axs, ["reference", "low_drain_doping"]):
+    for ax, dev, tag in zip(axs, ["reference", "low_drain_doping"], "ab"):
         for T, ls in ((T0, "-"), (TH, "--")):
             d = fine[(fine.device == dev) & np.isclose(fine.T_K, T)].sort_values("Vg")
             d = d[d.Vg <= 0.4 + 1e-9]
@@ -179,7 +179,7 @@ def fig_components(df):
                             label="nonlocal BTBT, source side (on-state), 300 K")
                 ax.semilogy(d.Vg, d.I_btbt_local, ":", color="0.4",
                             label="local BTBT (cal.), 300 K")
-        ax.set_title(f"{LABEL[dev]}: $D_{{it}}=10^{{12}}$, $\\tau=10^{{-7}}$ s")
+        ax.set_title(f"({tag}) {LABEL[dev]}: $D_{{it}}=10^{{12}}$, $\\tau=10^{{-7}}$ s")
         ax.set_xlabel("$V_{GS}$ (V)")
         ax.grid(True, which="major", alpha=0.3)
     axs[0].set_ylabel("Current component (A/µm)")
